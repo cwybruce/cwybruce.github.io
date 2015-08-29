@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[My Octopress Blog]]></title>
+  <link href="http://cwybruce.github.io/atom.xml" rel="self"/>
+  <link href="http://cwybruce.github.io/"/>
+  <updated>2015-08-29T16:15:56+08:00</updated>
+  <id>http://cwybruce.github.io/</id>
+  <author>
+    <name><![CDATA[Your Name]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[]]></title>
+    <link href="http://cwybruce.github.io/blog/2015/08/29/"/>
+    <updated>2015-08-29T14:06:44+08:00</updated>
+    <id>http://cwybruce.github.io/blog/2015/08/</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[First Bolg]]></title>
+    <link href="http://cwybruce.github.io/blog/2015/08/29/first-bolg/"/>
+    <updated>2015-08-29T00:00:00+08:00</updated>
+    <id>http://cwybruce.github.io/blog/2015/08/29/first-bolg</id>
+    <content type="html"><![CDATA[<h2>Markdown基础语法</h2>
+
+<h3>1.标题</h3>
+
+<p> #<br/>
+  一个"#&ldquo;表示一个一级标题
+  后面依次类推</p>
+
+<h2>2.强调</h2>
+
+<p>  a.加粗: ** 文字**</p>
+
+<p>   <strong>加粗</strong></p>
+
+<p>  b.标亮: `标亮`</p>
+
+<p>   <code>标亮</code></p>
+
+<h2>3.链接</h2>
+
+<p>  a.引用: > 引用</p>
+
+<pre><code>&gt;引用
+</code></pre>
+
+<p>  b.插入链接: [链接文字](链接地址)</p>
+
+<p>  <a href="%E9%93%BE%E6%8E%A5%E5%9C%B0%E5%9D%80">链接文字</a></p>
+
+<p>  c.插入图片: ![image](链接地址)</p>
+
+<p>  <img src="http://img3.douban.com/lpic/s10321551.jpg" alt="image" /></p>
+
+<p>  d.插入视频
+  语法:
+  {\% video url/to/video [url/to/video] [url/to/video] [width height] [url/to/poster] \%}</p>
+
+<h2>4.插入代码</h2>
+]]></content>
+  </entry>
+  
+</feed>
