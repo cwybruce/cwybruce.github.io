@@ -1,0 +1,108 @@
+import { WHY_CANT_I_PERSIST } from '../../src/content/questions/why-cant-i-persist.mjs';
+import { buildMindProfile } from '../../src/domain/profile.mjs';
+import { getMindDiveState, MIND_DIVE_DURATION } from '../../src/mind-dive/state.mjs';
+import { createPlaybackController } from '../../src/mind-dive/playback.mjs';
+import { buildMindDiveViewModel } from '../../src/mind-dive/view-model.mjs';
+import { getMindDiveVisualState } from '../../src/mind-dive/visual-state.mjs';
+import { drawNeuralField } from '../../src/mind-dive/neural-field.mjs';
+
+const params = new URLSearchParams(location.search);
+const renderMode = params.get('render') === '1';
+if (renderMode) document.body.classList.add('render-mode');
+
+const defaultResult = {dominantMode:'rational',secondaryMode:'care',fallbackMode:'ego',dimensions:{safety:42,belonging:48,achievement:72,analysis:92,empathy:66,flexibility:70},modeScores:{survival:20,belonging:25,ego:50,rational:80,care:55,integration:35,transcendence:20}};
+let result = defaultResult;
+if (!renderMode) {
+  try { result = JSON.parse(sessionStorage.getItem('consciousness-assessment-result')) || defaultResult; } catch { result = defaultResult; }
+}
+const profile = buildMindProfile(result);
+
+const stage = document.querySelector('#stage');
+const canvas = document.querySelector('#neural');
+const ctx = canvas.getContext('2d');
+const core = document.querySelector('#mind-core');
+const aperture = document.querySelector('#neural-aperture');
+const brainGate = document.querySelector('#brain-gate');
+const depthReadout = document.querySelector('#depth-readout');
+const journeyCaption = document.querySelector('#journey-caption');
+const graph = document.querySelector('#graph');
+const packetLayer = document.querySelector('#packets');
+const pathIds = ['p1','p2','p3','p4','p5','p6','p7'];
+const paths = pathIds.map((id)=>document.querySelector(`#${id}`));
+const phaseTimes = {trigger:1,interpretation:6,reward:11,'old-loop':16,observer:22,intervention:27,'new-loop':32};
+const phaseOrder = Object.keys(phaseTimes);
+const phaseNames = {trigger:'TRIGGER',interpretation:'INTERPRETATION',reward:'REWARD CONFLICT','old-loop':'OLD LOOP',observer:'OBSERVER',intervention:'INTERVENTION','new-loop':'NEW LOOP'};
+let lastState = null;
+
+function setBar(name,value){document.querySelector(`#m-${name}`).style.width=`${value}%`;document.querySelector(`#v-${name}`).textContent=String(value).padStart(2,'0');}
+function drawPackets(progress, activePhase) {
+  packetLayer.replaceChildren();
+  const phaseIndex=phaseOrder.indexOf(activePhase);
+  paths.forEach((path,index)=>{
+    const length=path.getTotalLength();
+    const local=(progress+index*.17)%1;
+    const p=path.getPointAtLength(length*local);
+    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('class','packet');circle.setAttribute('r',index<=phaseIndex?4:2.4);circle.setAttribute('cx',p.x);circle.setAttribute('cy',p.y);circle.style.opacity=index<=phaseIndex?'1':'.25';packetLayer.append(circle);
+    const tail=document.createElementNS('http://www.w3.org/2000/svg','circle');const tp=path.getPointAtLength(length*Math.max(0,local-.035));tail.setAttribute('class','packet tail');tail.setAttribute('r','2');tail.setAttribute('cx',tp.x);tail.setAttribute('cy',tp.y);tail.style.opacity=index<=phaseIndex?'.55':'.12';packetLayer.append(tail);
+  });
+}
+function renderAt(t){
+  const state=getMindDiveState(t,profile,WHY_CANT_I_PERSIST); const vm=buildMindDiveViewModel(state);
+  const visual=getMindDiveVisualState(state.time);
+  lastState=state;
+  document.querySelector('#time-label').textContent=vm.timeLabel;
+  document.querySelector('#control-time').textContent=`00:${String(Math.floor(state.time)).padStart(2,'0')} / 00:${state.duration}`;
+  document.querySelector('#scrubber').value=state.time;
+  document.querySelector('#headline').textContent=vm.headline; document.querySelector('#subline').textContent=vm.subline;
+  document.querySelector('#phase-kicker').textContent=`PHASE ${String(state.phaseIndex+1).padStart(2,'0')} / 07`;
+  document.querySelector('#phase-name').textContent=phaseNames[state.phase];
+  document.querySelector('#trace-lines').replaceChildren(...vm.traceLines.map((line)=>{const div=document.createElement('div');div.textContent=line;return div;}));
+  document.querySelectorAll('.node').forEach((node)=>node.classList.toggle('active',node.dataset.node===vm.activeNode));
+  document.querySelectorAll('#scene-map button').forEach((button)=>button.classList.toggle('active',Number(button.dataset.time)===phaseTimes[state.phase]));
+  setBar('threat',vm.metrics.threat);setBar('friction',vm.metrics.friction);setBar('reward',vm.metrics.rewardBias);setBar('observer',vm.metrics.observer);setBar('agency',vm.metrics.agency);
+  document.querySelector('#old-loop').textContent=`${vm.oldLoopStrength}%`;document.querySelector('#old-loop-bar').style.width=`${vm.oldLoopStrength}%`;
+  document.querySelector('#new-loop').textContent=`${vm.newLoopStrength}%`;document.querySelector('#new-loop-bar').style.width=`${vm.newLoopStrength}%`;
+  document.querySelector('#overall-progress').style.width=`${vm.overallProgress*100}%`;
+  document.querySelector('#profile-mode').textContent=profile.highlightedMode.toUpperCase();
+  document.querySelector('#scan').style.top=`${8+((state.time*9)%84)}%`;
+  // DOM HUD and Canvas2D both use the same seek(t), including during MP4 export.
+  stage.dataset.phase=state.phase;
+  const c=visual.camera;
+  core.style.transform='translateZ(0)';
+  graph.style.opacity=String(state.time < 5 ? .19 : state.time < 21 ? .28 : .57 + .22*visual.cyanMix);
+  graph.style.transform=`translate(${(-c.shiftX*.16).toFixed(2)}px,${(-c.shiftY*.13).toFixed(2)}px) scale(${(0.98+(c.zoom-1)*.05).toFixed(4)})`;
+  aperture.style.transform=`translate(calc(-50% + ${c.shiftX.toFixed(2)}px),calc(-50% + ${c.shiftY.toFixed(2)}px)) scale(${(0.86+c.zoom*.14).toFixed(4)}) rotate(${c.roll.toFixed(4)}rad)`;
+  aperture.style.opacity=(.24+.27*visual.lensPulse).toFixed(4);
+  brainGate.style.opacity=Math.max(0,1-state.time/5.8).toFixed(4);
+  brainGate.style.transform=`translate(-50%,-50%) scale(${(1+Math.min(1,state.time/5.8)*1.8).toFixed(4)})`;
+  aperture.style.setProperty('--lens-color',visual.palette==='cyan'?'#5ee7ff':'#ff4fa5');
+  depthReadout.textContent=`${visual.depthLabel} / ${c.speed.toFixed(2)}x`;
+  journeyCaption.textContent=visual.title;
+  document.querySelector('#fallback-mode').textContent=profile.result.fallbackMode.toUpperCase();
+  drawNeuralField(ctx,{time:state.time,visual,width:canvas.width,height:canvas.height});
+  drawPackets(vm.packetProgress,state.phase);
+  return state;
+}
+
+const controller=createPlaybackController({duration:MIND_DIVE_DURATION,onFrame:renderAt,reducedMotion:renderMode||matchMedia('(prefers-reduced-motion: reduce)').matches});
+document.querySelector('#play').addEventListener('click',()=>{if(controller.isPlaying()){controller.pause();document.querySelector('#play').textContent='播放';}else{controller.play();document.querySelector('#play').textContent='暂停';}});
+document.querySelector('#restart').addEventListener('click',()=>{controller.restart();document.querySelector('#play').textContent=controller.isPlaying()?'暂停':'播放';});
+document.querySelector('#scrubber').addEventListener('input',(e)=>{controller.pause();document.querySelector('#play').textContent='播放';controller.seek(Number(e.target.value));});
+document.querySelectorAll('#scene-map button').forEach((button)=>button.addEventListener('click',()=>{controller.pause();document.querySelector('#play').textContent='播放';controller.seek(Number(button.dataset.time));}));
+
+const waitlist=document.querySelector('#waitlist');
+waitlist.addEventListener('submit',(event)=>{event.preventDefault();const value=document.querySelector('#contact').value.trim();const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)||/^\+?[\d\s-]{7,18}$/.test(value);const status=document.querySelector('#waitlist-status');if(!ok){status.textContent='请输入可识别的邮箱或手机号。';status.style.color='#ff7bbb';return;}sessionStorage.setItem('consciousness-waitlist-demo',value);status.textContent='已保存在当前浏览器会话中（演示版未上传服务器）。';status.style.color='#69e9c4';});
+
+function getCheck(){const overflows=[];document.querySelectorAll('.check-text').forEach((el,index)=>{if(el.scrollWidth>el.clientWidth+2||el.scrollHeight>el.clientHeight+2)overflows.push(`${el.id||el.className||'text'}:${index}`);});return{overflows,stage:{width:stage.clientWidth,height:stage.clientHeight}};}
+function hashText(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}return(h>>>0).toString(16);}
+function getSignature(){
+  const activeNodes=[...document.querySelectorAll('.node.active')].map((node)=>node.dataset.node);
+  const widths=[...document.querySelectorAll('.metric-track i,.loop-track i,.progress-line i')].map((el)=>el.style.width);
+  const domSignature=hashText(JSON.stringify({state:lastState,text:stage.innerText,activeNodes,widths,core:core.style.transform,graph:graph.style.transform,aperture:aperture.style.transform,scan:document.querySelector('#scan').style.top}));
+  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;let h=2166136261;
+  for(let i=0;i<pixels.length;i+=97){h^=pixels[i];h=Math.imul(h,16777619);}
+  return `${domSignature}-${(h>>>0).toString(16)}`;
+}
+window.__CONSCIOUSNESS_OS__={ready:true,seek:(seconds)=>{controller.pause();return renderAt(Number(seconds));},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature};
+const initial=Number(params.get('t')||0);controller.seek(initial);
+if(!renderMode&&!matchMedia('(prefers-reduced-motion: reduce)').matches){setTimeout(()=>{controller.play();document.querySelector('#play').textContent='暂停';},450);}

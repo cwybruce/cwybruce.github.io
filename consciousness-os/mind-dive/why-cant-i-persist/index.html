@@ -1,0 +1,101 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>为什么我总坚持不了？ · Mind Dive</title><link rel="stylesheet" href="../../styles.css"><link rel="stylesheet" href="./mind-dive.css"></head><body>
+<main class="mind-shell">
+  <nav class="mind-nav"><a href="../../result/">← EXIT MIND</a><span>CONSCIOUSNESS OS / MIND DIVE 001</span><span id="system-status">● SYSTEM ONLINE</span></nav>
+  <section id="stage" class="stage" aria-label="意识系统沉浸式解密">
+    <canvas id="neural" width="1280" height="720" aria-hidden="true"></canvas>
+    <div class="stage-grid" aria-hidden="true"></div>
+    <div class="scan" id="scan" aria-hidden="true"></div>
+    <div class="brain-gate" id="brain-gate" aria-hidden="true">
+      <svg viewBox="0 0 400 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="skull-gradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5ee7ff"/><stop offset=".5" stop-color="#ff4fa5"/><stop offset="1" stop-color="#9b67ff"/></linearGradient>
+          <filter id="skull-glow"><feGaussianBlur stdDeviation="3" result="h"/><feMerge><feMergeNode in="h"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <path class="skull" d="M164 34 C97 52 63 110 63 182 C63 235 84 273 117 303 L127 387 L258 387 L264 340 C268 315 279 303 305 294 C341 281 354 258 357 229 L383 224 Q396 219 384 201 L357 168 C357 88 302 31 226 27 C202 24 183 28 164 34Z" stroke="url(#skull-gradient)" stroke-width="2"/>
+        <path class="cortex" d="M119 153 C119 101 161 73 213 79 C253 59 304 100 310 132 C347 165 300 204 278 211 C232 240 195 215 157 224 C112 215 102 186 119 153Z"/>
+        <g class="gyri"><path d="M153 109 C134 141 179 146 160 165 C140 184 179 202 201 185"/><path d="M207 85 C192 121 235 125 220 160 C204 188 247 198 270 169"/><path d="M272 103 C252 121 292 145 275 162 C252 190 307 188 305 161"/><path d="M140 183 C171 163 196 215 224 198"/><path d="M200 137 C183 155 207 171 195 192"/></g>
+        <g class="neural-markers"><circle cx="161" cy="164" r="5"/><circle cx="221" cy="158" r="5"/><circle cx="272" cy="162" r="4"/><circle cx="205" cy="203" r="4"/><path d="M161 164L221 158L272 162M221 158L205 203L161 164"/></g>
+        <path class="spinal" d="M202 229 C221 254 220 311 213 384"/>
+      </svg>
+      <span class="brain-gate-label">INNER BRAIN / NEURAL GATE</span>
+    </div>
+    <div class="neural-aperture" id="neural-aperture" aria-hidden="true">
+      <i class="lens-tick north"></i><i class="lens-tick south"></i>
+      <i class="lens-tick west"></i><i class="lens-tick east"></i>
+      <div class="lens-center"></div>
+    </div>
+    <div class="journey-console" aria-hidden="true">
+      <span id="journey-caption">INITIALIZING / 进入意识层</span>
+      <span id="depth-readout">DEPTH 092 / 0.65x</span>
+    </div>
+
+    <header class="stage-header check-text">
+      <div><b>CONSCIOUSNESS OS</b><span> / LIVE INNER TRACE</span></div>
+      <div id="time-label">0.0s / 36s</div>
+    </header>
+
+    <aside class="hud left-hud">
+      <div class="hud-title">STATE SIGNALS <span>示意</span></div>
+      <div class="metric"><label>THREAT</label><div class="metric-track"><i id="m-threat"></i></div><b id="v-threat">00</b></div>
+      <div class="metric"><label>FRICTION</label><div class="metric-track"><i id="m-friction"></i></div><b id="v-friction">00</b></div>
+      <div class="metric"><label>REWARD BIAS</label><div class="metric-track"><i id="m-reward"></i></div><b id="v-reward">00</b></div>
+      <div class="metric"><label>OBSERVER</label><div class="metric-track cyan"><i id="m-observer"></i></div><b id="v-observer">00</b></div>
+      <div class="metric"><label>AGENCY</label><div class="metric-track cyan"><i id="m-agency"></i></div><b id="v-agency">00</b></div>
+      <div class="hud-subtitle">PROFILE</div>
+      <div class="profile-line"><span>CURRENT</span><b id="profile-mode">RATIONAL</b></div>
+      <div class="profile-line"><span>FALLBACK</span><b id="fallback-mode">EGO</b></div>
+      <p class="tiny">状态条为叙事示意；个人维度来自测试结果，不代表医学或神经测量。</p>
+    </aside>
+
+    <section class="mind-core" id="mind-core">
+      <div class="core-title check-text"><span class="eyebrow">QUESTION / 人生问题</span><h1>为什么我总坚持不了？</h1></div>
+      <svg id="graph" viewBox="0 0 760 420" role="img" aria-label="触发到新回路的机制图">
+        <defs><filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        <g class="wires" fill="none">
+          <path id="p1" d="M82 214 C142 214 162 132 226 132"/>
+          <path id="p2" d="M280 132 C340 132 340 214 394 214"/>
+          <path id="p3" d="M448 214 C505 214 505 132 566 132"/>
+          <path id="p4" d="M620 132 C684 132 688 214 730 214"/>
+          <path id="p5" d="M394 245 C394 305 330 325 278 325"/>
+          <path id="p6" d="M330 325 C390 325 432 325 486 325"/>
+          <path id="p7" d="M538 325 C596 325 646 325 705 325"/>
+        </g>
+        <g id="packets" aria-hidden="true"></g>
+        <g class="nodes">
+          <g class="node" data-node="trigger" transform="translate(35 184)"><rect width="94" height="60" rx="9"/><text x="47" y="26">现实触发</text><text x="47" y="45" class="en">TRIGGER</text></g>
+          <g class="node" data-node="meaning" transform="translate(200 102)"><rect width="108" height="60" rx="9"/><text x="54" y="26">自动解释</text><text x="54" y="45" class="en">MEANING</text></g>
+          <g class="node" data-node="reward" transform="translate(366 184)"><rect width="108" height="60" rx="9"/><text x="54" y="26">即时奖励</text><text x="54" y="45" class="en">REWARD</text></g>
+          <g class="node" data-node="action" transform="translate(540 102)"><rect width="108" height="60" rx="9"/><text x="54" y="26">行为选择</text><text x="54" y="45" class="en">ACTION</text></g>
+          <g class="node" data-node="observer" transform="translate(226 295)"><rect width="108" height="60" rx="9"/><text x="54" y="26">观察者</text><text x="54" y="45" class="en">OBSERVER</text></g>
+          <g class="node" data-node="intervention" transform="translate(470 295)"><rect width="108" height="60" rx="9"/><text x="54" y="26">最小干预</text><text x="54" y="45" class="en">INTERVENE</text></g>
+          <g class="node" data-node="new-loop" transform="translate(666 295)"><rect width="88" height="60" rx="9"/><text x="44" y="26">新回路</text><text x="44" y="45" class="en">NEW LOOP</text></g>
+        </g>
+      </svg>
+      <div class="phase-copy check-text"><div id="phase-kicker">PHASE 01 / 07</div><h2 id="headline">现实触发</h2><p id="subline">“今天太累了，明天再开始。”</p></div>
+    </section>
+
+    <aside class="hud right-hud">
+      <div class="hud-title">LOOP STRENGTH</div>
+      <div class="loop-meter old"><div><span>OLD LOOP</span><b id="old-loop">100%</b></div><div class="loop-track"><i id="old-loop-bar"></i></div></div>
+      <div class="loop-meter new"><div><span>NEW LOOP</span><b id="new-loop">0%</b></div><div class="loop-track"><i id="new-loop-bar"></i></div></div>
+      <div class="hud-subtitle">SCENE MAP</div>
+      <div id="scene-map" class="scene-map">
+        <button data-time="1">01 现实触发</button><button data-time="6">02 自动解释</button><button data-time="11">03 即时奖励</button><button data-time="16">04 旧回路</button><button data-time="22">05 观察者</button><button data-time="27">06 最小干预</button><button data-time="32">07 新回路</button>
+      </div>
+    </aside>
+
+    <section class="terminal">
+      <div class="terminal-head"><span>> INNER_TRACE.log</span><span id="phase-name">TRIGGER</span></div>
+      <div id="trace-lines" class="trace-lines check-text"><div>INPUT  今天很累</div><div>SIGNAL  task_friction ↑</div><div>SYSTEM  searching default path...</div></div>
+    </section>
+    <div class="progress-line"><i id="overall-progress"></i></div>
+  </section>
+
+  <section class="controls" aria-label="播放控制"><button id="play" type="button">播放</button><button id="restart" type="button">重播</button><input id="scrubber" type="range" min="0" max="36" step="0.01" value="0" aria-label="时间轴"><span id="control-time">00:00 / 00:36</span></section>
+
+  <section class="aftercare" id="aftercare">
+    <div><div class="eyebrow">AFTER THE DIVE</div><h2>你已经看见旧程序。下一步是训练新的默认反应。</h2><p>训练不是“知道更多”，而是在真实触发发生时，把观察者和最小行动练成默认路径。</p></div>
+    <form id="waitlist" class="waitlist"><label>训练营内测等待名单（MVP 演示）<input id="contact" name="contact" autocomplete="email" placeholder="邮箱或手机号"></label><button type="submit">留下联系方式</button><p id="waitlist-status">演示版只保存在当前浏览器会话，不会上传服务器。</p></form>
+  </section>
+</main>
+<script type="module" src="./app.mjs"></script></body></html>
