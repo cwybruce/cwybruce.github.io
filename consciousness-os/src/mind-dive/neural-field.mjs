@@ -1,3 +1,4 @@
+import { drawAnatomicalBrain } from './anatomical-brain.mjs';
 // A reproducible pseudo-3D neuron tunnel rendered entirely with Canvas2D.
 // No WebGL or runtime randomness: the same time always reconstructs the same frame.
 
@@ -100,6 +101,8 @@ export function drawNeuralField(ctx,{time,visual,width,height}){
     ctx.fillStyle=p.cyan?`rgba(140,237,255,${p.alpha*.85})`:`rgba(255,${Math.round(130+90*cyanMix)},${Math.round(210+40*cyanMix)},${p.alpha})`;
     ctx.fill();
   }
+  // Live anatomical cutaway remains present through the entire 36-second story.
+  drawAnatomicalBrain(ctx,{time,visual,width,height});
   for(const p of pulses){
     const color=p.cyan?`rgba(94,235,255,${p.alpha})`:`rgba(255,81,187,${p.alpha})`;
     ctx.shadowBlur=20;ctx.shadowColor=color;

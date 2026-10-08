@@ -49,3 +49,31 @@ body{background:#020306;overflow-x:hidden}.mind-shell{max-width:1328px;margin:0 
 
 /* V2.2 audio-mix control */
 .controls .music-control{display:inline-flex;align-items:center;gap:5px;min-width:125px;white-space:nowrap;color:#9eafc6;font:11px ui-monospace,monospace}.controls .music-control input{width:84px;min-width:65px;accent-color:#73dff3}.controls #scrubber{min-width:100px}@media(max-width:800px){.controls .music-control{min-width:110px}.controls .music-control input{width:75px}}
+
+/* V2.3: the modelled cortex is now painted as live canvas geometry.
+   Hide the old five-curve SVG gate; it is retained only as a legacy fallback. */
+.brain-gate{display:none}
+.stage-grid{opacity:.20}
+
+/* Live cortex material: an x-ray relief texture above the procedural
+   Canvas anatomy, not a baked-in UI screenshot. Every neural signal still
+   animates through the deterministic timeline. */
+.anatomical-texture{position:absolute;left:41.2%;top:15.2%;width:34%;height:auto;aspect-ratio:520/450;z-index:-1;pointer-events:none;object-fit:contain;mix-blend-mode:screen;opacity:.73;filter:saturate(1.22) contrast(1.07) drop-shadow(0 0 16px rgba(101,131,255,.30));will-change:transform,opacity}
+.render-mode .anatomical-texture{width:440px;left:527px;top:110px}
+@media(max-width:800px){.anatomical-texture{width:110%;max-width:460px;left:50%;top:18%;transform:translateX(-50%);opacity:.66}}
+
+/* Separate translucent face/neck material supplies x-ray depth without
+   replacing the time-driven cortical ridges and nerve traffic. */
+.face-scan-texture{position:absolute;left:57.8%;top:31%;width:17%;height:auto;z-index:-1;pointer-events:none;mix-blend-mode:screen;opacity:.82;filter:saturate(1.13) brightness(1.06) drop-shadow(0 0 14px rgba(95,175,250,.35));will-change:transform,opacity}
+.render-mode .face-scan-texture{width:218px;left:740px;top:223px}
+@media(max-width:800px){.face-scan-texture{width:53%;max-width:210px;left:53%;top:32%}}
+
+/* Camera transform is CSS-composed, so portrait centering survives seek(). */
+.anatomical-texture{transform:translate3d(var(--brain-pan-x,0px),var(--brain-pan-y,0px),0) scale(var(--brain-scale,1))}
+.face-scan-texture{transform:translate3d(var(--face-pan-x,0px),var(--face-pan-y,0px),0) scale(var(--face-scale,1))}
+@media(max-width:800px){
+ .anatomical-texture{width:93%;left:50%;top:18%;transform:translate(calc(-50% + var(--brain-pan-x,0px)),var(--brain-pan-y,0px)) scale(var(--brain-scale,1))}
+ .face-scan-texture{width:46%;left:50%;top:32%;transform:translate(calc(-50% + var(--face-pan-x,0px)),var(--face-pan-y,0px)) scale(var(--face-scale,1))}
+ .core-title h1,.phase-copy h2{text-shadow:0 2px 16px #000,0 0 24px #000}
+ .phase-copy{border-radius:10px;background:linear-gradient(0deg,rgba(2,4,10,.76),rgba(2,4,10,.06));padding:12px 6px}
+}
