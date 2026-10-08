@@ -1,0 +1,81 @@
+name: Build and verify Consciousness OS V3 WebGL assets
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'consciousness-os/src/mind-dive/three/**'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Three.js builder and browser checker
+        run: |
+          npm install --prefix consciousness-os --no-save --no-package-lock --no-audit --no-fund three@0.186.1 esbuild@0.28.2 playwright-core@1.56.1
+      - name: Build true WebGL2 three.js module
+        run: |
+          set -eu
+          consciousness-os/node_modules/.bin/esbuild consciousness-os/src/mind-dive/three/scene.mjs --bundle --platform=browser --format=esm --target=es2022 --minify --outfile=consciousness-os/mind-dive/why-cant-i-persist/brain-scene.bundle.mjs
+          test -s consciousness-os/mind-dive/why-cant-i-persist/brain-scene.bundle.mjs
+      - name: Download and authenticate official HRA Allen 3D GLB
+        run: |
+          set -eu
+          mkdir -p consciousness-os/mind-dive/why-cant-i-persist/assets/models
+          curl -fLsS --retry 2 --max-time 240 https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb -o consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb
+          echo 'c97d7d0b9ff0baebbdec5566fa7b08d789195ef965e0bd04cf743a8d683882db  consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb' | sha256sum -c -
+          python3 -c "import struct; p='consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb'; b=open(p,'rb').read(); assert b[:4]==b'glTF' and len(b)==struct.unpack_from('<I',b,8)[0]; print('Verified licensed real HRA anatomical GLB',len(b),'bytes')"
+      - name: Test actual WebGL2 in headless Chromium and capture screenshot
+        run: |
+          set -eu
+          which google-chrome || which chromium || which chromium-browser
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/v3-http.log 2>&1 &
+          sleep 2
+          node --input-type=module <<'NODE'
+          import { chromium } from './consciousness-os/node_modules/playwright-core/index.mjs';
+          const exe=process.env.CHROME_BIN || '/usr/bin/google-chrome';
+          const browser=await chromium.launch({executablePath:exe,headless:true,args:['--enable-webgl','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--no-sandbox','--disable-dev-shm-usage']});
+          try {
+            const page=await browser.newPage({viewport:{width:1280,height:720},deviceScaleFactor:1});
+            const errors=[];
+            page.on('pageerror', e=>errors.push('PageError '+e.message));
+            page.on('console', m=>{if(m.type()==='error') errors.push('Console '+m.text())});
+            await page.goto('http://127.0.0.1:8765/consciousness-os/mind-dive/why-cant-i-persist/?render=1',{waitUntil:'domcontentloaded',timeout:30000});
+            await page.waitForFunction(()=>Boolean(window.__CONSCIOUSNESS_OS__?.ready),null,{timeout:120000});
+            const mode=await page.evaluate(()=>window.__CONSCIOUSNESS_OS__.getRendererMode());
+            const info=await page.evaluate(()=>window.__CONSCIOUSNESS_OS__.getRendererInfo());
+            console.log('REAL_WEBGL_RENDER_MODE',mode);
+            console.log('REAL_WEBGL_RENDER_INFO',JSON.stringify(info));
+            console.log('BROWSER_ERRORS',JSON.stringify(errors));
+            if(mode!=='3d')throw Error('Real GLB renderer not active: '+JSON.stringify(info)+'; '+errors.join('; '));
+            if(!(info.modelMeshes>0))throw Error('No anatomical mesh was loaded');
+            await page.evaluate(()=>window.__CONSCIOUSNESS_OS__.seek(22.5));
+            await page.screenshot({path:'v3-real-webgl22.png',fullPage:false});
+            await page.evaluate(()=>window.__CONSCIOUSNESS_OS__.seek(3));
+            await page.screenshot({path:'v3-real-webgl03.png',fullPage:false});
+            const check=await page.evaluate(()=>window.__CONSCIOUSNESS_OS__.getCheck());
+            if(check.overflows?.length)throw Error('UI overflow: '+check.overflows.join(','));
+            console.log('WEBGL_SCREENSHOT_CAPTURED',info.modelMeshes);
+          } finally {await browser.close()}
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: v3-live-webgl-browser-captures
+          path: v3-real-webgl*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Commit actual WebGL bundle and anatomical model only after browser test
+        run: |
+          set -eu
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f consciousness-os/mind-dive/why-cant-i-persist/brain-scene.bundle.mjs
+          git add -f consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb
+          git commit -m 'assets: verified real HRA 3D atlas and Three.js WebGL bundle'
+          git push origin HEAD:master
