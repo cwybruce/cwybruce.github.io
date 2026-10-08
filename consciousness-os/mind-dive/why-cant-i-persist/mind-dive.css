@@ -46,3 +46,6 @@ body{background:#020306;overflow-x:hidden}.mind-shell{max-width:1328px;margin:0 
 .controls #voice-toggle[aria-pressed="false"]{color:#778295}
 .controls #voice-status{min-width:unset;font-size:10px;max-width:175px;text-align:left;line-height:1.4}
 @media(max-width:800px){.narration-caption{left:3%;right:3%;bottom:16%;padding:3px 5px;font-size:12px;min-height:24px;gap:5px}.narration-caption .caption-tag{display:none}.mind-core .phase-copy{bottom:15%}.controls #voice-status{display:none}.controls{flex-wrap:wrap}.controls #voice-toggle{padding:0 9px}}
+
+/* V2.2 audio-mix control */
+.controls .music-control{display:inline-flex;align-items:center;gap:5px;min-width:125px;white-space:nowrap;color:#9eafc6;font:11px ui-monospace,monospace}.controls .music-control input{width:84px;min-width:65px;accent-color:#73dff3}.controls #scrubber{min-width:100px}@media(max-width:800px){.controls .music-control{min-width:110px}.controls .music-control input{width:75px}}

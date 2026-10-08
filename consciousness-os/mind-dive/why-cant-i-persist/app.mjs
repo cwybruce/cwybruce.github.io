@@ -93,16 +93,44 @@ function renderAt(t){
 const voiceStatus=document.querySelector('#voice-status');
 const playButton=document.querySelector('#play');
 const voiceButton=document.querySelector('#voice-toggle');
+const musicSlider=document.querySelector('#music-volume');
+const recordedAudio=renderMode?null:document.querySelector('#recorded-narration');
+const recordedScore=renderMode?null:document.querySelector('#recorded-score');
 let narrator;
-const ambience=renderMode?createAmbientEngine({AudioContextCtor:null}):createAmbientEngine();
+const ambience=renderMode?createAmbientEngine({AudioContextCtor:null}):createAmbientEngine({recordedAudio:recordedScore});
+if(recordedScore?.dataset.scoreSrc){
+  recordedScore.addEventListener('loadedmetadata',()=>{
+    ambience.setRecordedAvailable(Math.abs(recordedScore.duration-MIND_DIVE_DURATION)<.75);
+  });
+  recordedScore.addEventListener('error',()=>ambience.setRecordedAvailable(false));
+  recordedScore.src=recordedScore.dataset.scoreSrc;
+  recordedScore.load();
+}
 // Keeping animation time as the master clock makes captions and silent MP4 export deterministic.
 const controller=createPlaybackController({duration:MIND_DIVE_DURATION,onFrame:(t)=>{
+  const audioTime=narrator?.getAudioTime();
+  if(audioTime!==null&&audioTime!==undefined&&Number.isFinite(audioTime)&&Math.abs(audioTime-t)>.14){
+    controller.seek(audioTime);return;
+  }
   renderAt(t);
   narrator?.tick(t);
   if(!renderMode)ambience.seek(t);
   if(t>=MIND_DIVE_DURATION&&playButton.textContent==='暂停')playButton.textContent='重播探索';
 },reducedMotion:renderMode||matchMedia('(prefers-reduced-motion: reduce)').matches});
-narrator=createNarrationPlayer({speech:renderMode?null:globalThis.speechSynthesis,createUtterance:(text)=>new SpeechSynthesisUtterance(text),getTime:()=>controller.getTime()});
+narrator=createNarrationPlayer({speech:renderMode?null:globalThis.speechSynthesis,createUtterance:(text)=>new SpeechSynthesisUtterance(text),getTime:()=>controller.getTime(),recordedAudio});
+if(recordedAudio?.dataset.voiceSrc){
+  recordedAudio.addEventListener('loadedmetadata',()=>{
+    const ready=Math.abs(recordedAudio.duration-MIND_DIVE_DURATION)<.75;
+    narrator.setRecordedAvailable(ready);
+    if(ready)voiceStatus.textContent='专业中文男声已就绪，点击播放';
+    else voiceStatus.textContent='专业配音时长不符，改用设备语音';
+  });
+  recordedAudio.addEventListener('error',()=>{narrator.setRecordedAvailable(false);voiceStatus.textContent='语音文件不可用，改用设备语音';});
+  recordedAudio.src=recordedAudio.dataset.voiceSrc;
+  recordedAudio.preload='metadata';
+  recordedAudio.load();
+}
+musicSlider.addEventListener('input',()=>ambience.setVolume(Number(musicSlider.value)/100));
 if(!narrator.available)voiceStatus.textContent='此浏览器不支持语音朗读；字幕仍可用';
 function stopPlayback(){controller.pause();narrator.pause();ambience.pause();playButton.textContent='播放';}
 function startPlayback(){
@@ -110,8 +138,8 @@ function startPlayback(){
   // A real click activates speech synthesis and WebAudio in browsers with autoplay restrictions.
   controller.play();
   if(voiceButton.getAttribute('aria-pressed')==='true'){
-    narrator.playAt(controller.getTime());ambience.start();
-    voiceStatus.textContent=narrator.available?'中文旁白 + 氛围音播放中':'仅氛围音和字幕；未检测到中文 TTS';
+    narrator.playAt(controller.getTime());ambience.start(controller.getTime());
+    voiceStatus.textContent=narrator.voiceMode==='recorded'?'专业男声 + 钢琴氛围配乐':narrator.available?'设备中文男声 + 钢琴氛围配乐':'仅钢琴配乐和字幕；本机无中文 TTS';
   }
   playButton.textContent='暂停';
 }
@@ -121,7 +149,7 @@ voiceButton.addEventListener('click',()=>{
   const enabled=voiceButton.getAttribute('aria-pressed')!=='true';
   voiceButton.setAttribute('aria-pressed',String(enabled));voiceButton.textContent=enabled?'声音：开':'声音：关';
   narrator.setMuted(!enabled);
-  if(enabled&&controller.isPlaying())ambience.start();else ambience.pause();
+  if(enabled&&controller.isPlaying())ambience.start(controller.getTime());else ambience.pause();
   voiceStatus.textContent=enabled?'已开启声音':'仅显示字幕';
 });
 document.querySelector('#scrubber').addEventListener('input',(e)=>{stopPlayback();controller.seek(Number(e.target.value));narrator.seek(controller.getTime());});
