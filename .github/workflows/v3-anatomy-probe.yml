@@ -1,0 +1,24 @@
+name: V3 anatomy asset feasibility
+on:
+  push:
+    branches: [master]
+    paths: ['.github/workflows/v3-anatomy-probe.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check npm install reachability
+        run: |
+          set -eu
+          node --version
+          npm view three@0.186.1 version --fetch-retries 1
+      - name: Check official HRA GLB download
+        run: |
+          set -eu
+          u=https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb
+          curl --fail --location --retry 2 --max-time 220 --output /tmp/brain.glb "$u"
+          python3 -c "import struct,hashlib; p='/tmp/brain.glb'; b=open(p,'rb').read(); print('MODEL_GLTF_MAGIC',b[:4]); print('MODEL_BYTES',len(b)); print('MODEL_DECLARED',struct.unpack_from('<I',b,8)[0]); print('MODEL_SHA256',hashlib.sha256(b).hexdigest()); assert b[:4]==b'glTF'; assert len(b)==struct.unpack_from('<I',b,8)[0]"
