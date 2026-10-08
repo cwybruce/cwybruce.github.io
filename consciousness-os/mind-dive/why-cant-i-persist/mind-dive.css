@@ -37,3 +37,12 @@ body{background:#020306;overflow-x:hidden}.mind-shell{max-width:1328px;margin:0 
   .terminal{height:19%;bottom:4%}
   .trace-lines{grid-template-columns:1fr;font-size:10px;line-height:1.4;padding:8px 12px}
 }
+
+
+/* V2.1 voice & subtitle layer: all captions come from the deterministic video timeline. */
+.mind-core .phase-copy{bottom:12%}
+.narration-caption{position:absolute;left:19%;right:19%;bottom:15.6%;z-index:3;min-height:36px;display:flex;align-items:center;justify-content:center;gap:14px;padding:7px 12px;text-align:center;background:linear-gradient(90deg,transparent,rgba(3,7,14,.88) 12%,rgba(3,7,14,.88) 88%,transparent);color:#f4f6fd;font:600 17px/1.4 "PingFang SC","Microsoft YaHei",sans-serif;text-shadow:0 2px 7px #020307}
+.narration-caption .caption-tag{font:600 9px ui-monospace,monospace;letter-spacing:.09em;color:#5ee7ff;white-space:nowrap}
+.controls #voice-toggle[aria-pressed="false"]{color:#778295}
+.controls #voice-status{min-width:unset;font-size:10px;max-width:175px;text-align:left;line-height:1.4}
+@media(max-width:800px){.narration-caption{left:3%;right:3%;bottom:16%;padding:3px 5px;font-size:12px;min-height:24px;gap:5px}.narration-caption .caption-tag{display:none}.mind-core .phase-copy{bottom:15%}.controls #voice-status{display:none}.controls{flex-wrap:wrap}.controls #voice-toggle{padding:0 9px}}

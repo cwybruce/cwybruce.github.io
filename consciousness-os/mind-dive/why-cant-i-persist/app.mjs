@@ -5,6 +5,9 @@ import { createPlaybackController } from '../../src/mind-dive/playback.mjs';
 import { buildMindDiveViewModel } from '../../src/mind-dive/view-model.mjs';
 import { getMindDiveVisualState } from '../../src/mind-dive/visual-state.mjs';
 import { drawNeuralField } from '../../src/mind-dive/neural-field.mjs';
+import { getNarrationCue } from '../../src/mind-dive/narration.mjs';
+import { createNarrationPlayer } from '../../src/mind-dive/narration-player.mjs';
+import { createAmbientEngine } from '../../src/mind-dive/ambience.mjs';
 
 const params = new URLSearchParams(location.search);
 const renderMode = params.get('render') === '1';
@@ -33,6 +36,7 @@ const phaseTimes = {trigger:1,interpretation:6,reward:11,'old-loop':16,observer:
 const phaseOrder = Object.keys(phaseTimes);
 const phaseNames = {trigger:'TRIGGER',interpretation:'INTERPRETATION',reward:'REWARD CONFLICT','old-loop':'OLD LOOP',observer:'OBSERVER',intervention:'INTERVENTION','new-loop':'NEW LOOP'};
 let lastState = null;
+const captionText = document.querySelector('#narration-text');
 
 function setBar(name,value){document.querySelector(`#m-${name}`).style.width=`${value}%`;document.querySelector(`#v-${name}`).textContent=String(value).padStart(2,'0');}
 function drawPackets(progress, activePhase) {
@@ -54,6 +58,8 @@ function renderAt(t){
   document.querySelector('#control-time').textContent=`00:${String(Math.floor(state.time)).padStart(2,'0')} / 00:${state.duration}`;
   document.querySelector('#scrubber').value=state.time;
   document.querySelector('#headline').textContent=vm.headline; document.querySelector('#subline').textContent=vm.subline;
+  const activeNarration=getNarrationCue(state.time);
+  if(captionText.textContent !== (activeNarration?.text??'')) captionText.textContent=activeNarration?.text??'';
   document.querySelector('#phase-kicker').textContent=`PHASE ${String(state.phaseIndex+1).padStart(2,'0')} / 07`;
   document.querySelector('#phase-name').textContent=phaseNames[state.phase];
   document.querySelector('#trace-lines').replaceChildren(...vm.traceLines.map((line)=>{const div=document.createElement('div');div.textContent=line;return div;}));
@@ -84,11 +90,42 @@ function renderAt(t){
   return state;
 }
 
-const controller=createPlaybackController({duration:MIND_DIVE_DURATION,onFrame:renderAt,reducedMotion:renderMode||matchMedia('(prefers-reduced-motion: reduce)').matches});
-document.querySelector('#play').addEventListener('click',()=>{if(controller.isPlaying()){controller.pause();document.querySelector('#play').textContent='播放';}else{controller.play();document.querySelector('#play').textContent='暂停';}});
-document.querySelector('#restart').addEventListener('click',()=>{controller.restart();document.querySelector('#play').textContent=controller.isPlaying()?'暂停':'播放';});
-document.querySelector('#scrubber').addEventListener('input',(e)=>{controller.pause();document.querySelector('#play').textContent='播放';controller.seek(Number(e.target.value));});
-document.querySelectorAll('#scene-map button').forEach((button)=>button.addEventListener('click',()=>{controller.pause();document.querySelector('#play').textContent='播放';controller.seek(Number(button.dataset.time));}));
+const voiceStatus=document.querySelector('#voice-status');
+const playButton=document.querySelector('#play');
+const voiceButton=document.querySelector('#voice-toggle');
+let narrator;
+const ambience=renderMode?createAmbientEngine({AudioContextCtor:null}):createAmbientEngine();
+// Keeping animation time as the master clock makes captions and silent MP4 export deterministic.
+const controller=createPlaybackController({duration:MIND_DIVE_DURATION,onFrame:(t)=>{
+  renderAt(t);
+  narrator?.tick(t);
+  if(!renderMode)ambience.seek(t);
+  if(t>=MIND_DIVE_DURATION&&playButton.textContent==='暂停')playButton.textContent='重播探索';
+},reducedMotion:renderMode||matchMedia('(prefers-reduced-motion: reduce)').matches});
+narrator=createNarrationPlayer({speech:renderMode?null:globalThis.speechSynthesis,createUtterance:(text)=>new SpeechSynthesisUtterance(text),getTime:()=>controller.getTime()});
+if(!narrator.available)voiceStatus.textContent='此浏览器不支持语音朗读；字幕仍可用';
+function stopPlayback(){controller.pause();narrator.pause();ambience.pause();playButton.textContent='播放';}
+function startPlayback(){
+  if(controller.getTime()>=MIND_DIVE_DURATION)controller.seek(0);
+  // A real click activates speech synthesis and WebAudio in browsers with autoplay restrictions.
+  controller.play();
+  if(voiceButton.getAttribute('aria-pressed')==='true'){
+    narrator.playAt(controller.getTime());ambience.start();
+    voiceStatus.textContent=narrator.available?'中文旁白 + 氛围音播放中':'仅氛围音和字幕；未检测到中文 TTS';
+  }
+  playButton.textContent='暂停';
+}
+playButton.addEventListener('click',()=>controller.isPlaying()?stopPlayback():startPlayback());
+document.querySelector('#restart').addEventListener('click',()=>{stopPlayback();controller.seek(0);startPlayback();});
+voiceButton.addEventListener('click',()=>{
+  const enabled=voiceButton.getAttribute('aria-pressed')!=='true';
+  voiceButton.setAttribute('aria-pressed',String(enabled));voiceButton.textContent=enabled?'声音：开':'声音：关';
+  narrator.setMuted(!enabled);
+  if(enabled&&controller.isPlaying())ambience.start();else ambience.pause();
+  voiceStatus.textContent=enabled?'已开启声音':'仅显示字幕';
+});
+document.querySelector('#scrubber').addEventListener('input',(e)=>{stopPlayback();controller.seek(Number(e.target.value));narrator.seek(controller.getTime());});
+document.querySelectorAll('#scene-map button').forEach((button)=>button.addEventListener('click',()=>{stopPlayback();controller.seek(Number(button.dataset.time));narrator.seek(controller.getTime());}));
 
 const waitlist=document.querySelector('#waitlist');
 waitlist.addEventListener('submit',(event)=>{event.preventDefault();const value=document.querySelector('#contact').value.trim();const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)||/^\+?[\d\s-]{7,18}$/.test(value);const status=document.querySelector('#waitlist-status');if(!ok){status.textContent='请输入可识别的邮箱或手机号。';status.style.color='#ff7bbb';return;}sessionStorage.setItem('consciousness-waitlist-demo',value);status.textContent='已保存在当前浏览器会话中（演示版未上传服务器）。';status.style.color='#69e9c4';});
@@ -103,6 +140,6 @@ function getSignature(){
   for(let i=0;i<pixels.length;i+=97){h^=pixels[i];h=Math.imul(h,16777619);}
   return `${domSignature}-${(h>>>0).toString(16)}`;
 }
-window.__CONSCIOUSNESS_OS__={ready:true,seek:(seconds)=>{controller.pause();return renderAt(Number(seconds));},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature};
+window.__CONSCIOUSNESS_OS__={ready:true,seek:(seconds)=>{controller.pause();narrator.pause();return renderAt(Number(seconds));},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature};
 const initial=Number(params.get('t')||0);controller.seek(initial);
-if(!renderMode&&!matchMedia('(prefers-reduced-motion: reduce)').matches){setTimeout(()=>{controller.play();document.querySelector('#play').textContent='暂停';},450);}
+// Audio cannot reliably autoplay. Playback starts only after a user gesture.
