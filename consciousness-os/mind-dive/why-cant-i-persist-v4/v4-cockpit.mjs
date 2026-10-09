@@ -2,6 +2,7 @@
 const ns='http://www.w3.org/2000/svg';
 const palette=['#28dcf3','#698df2','#e952bb','#69c9f4','#fd5dd1'];
 const zoneStages={pfc:['observer','intervention'],amygdala:['interpretation','old-loop'],striatum:['reward','old-loop'],parietal:['observer','new-loop'],hippocampus:['interpretation','observer'],insula:['trigger','intervention']};
+const phaseOrder=['trigger','interpretation','reward','old-loop','observer','intervention','new-loop'];
 const cached=new WeakMap();
 const clamp=(value,low,high)=>Math.max(low,Math.min(high,value));
 export function getSignal(t,seed=0){
@@ -46,7 +47,7 @@ export function initializeV4Cockpit(root=document){
 export function updateV4Cockpit(root=document,{time=0,phase='trigger',observer=10,rewardBias=60,agency=8}={}){
  const stage=root.querySelector('#stage');if(!stage)return;
  initializeV4Cockpit(root);
- const t=clamp(Number(time)||0,0,36),stageIndex=Math.min(6,Math.floor(t/5.4));
+ const t=clamp(Number(time)||0,0,36),stageIndex=Math.max(0,phaseOrder.indexOf(phase));
  stage.style.setProperty('--v4-signal',String(getSignal(t,3)));
  root.querySelectorAll('#v4-slice-stack .v4-slice').forEach((node,i)=>node.classList.toggle('active',i===stageIndex));
  root.querySelectorAll('.v4-callout').forEach((node,i)=>{

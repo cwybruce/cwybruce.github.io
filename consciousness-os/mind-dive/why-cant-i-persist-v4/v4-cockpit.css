@@ -81,7 +81,7 @@ body{background:#02050c}
 .v4-spectrum{margin-top:.5cqw;display:flex;align-items:center;gap:.55cqw;color:#8faaca;font-size:.65cqw}
 .v4-spectrum i{display:block;height:.45cqw;flex:1;background:linear-gradient(90deg,#053452,#006caa,#408ddd,#8656db,#ff59be)}
 .v4-cockpit .mind-core{z-index:4;top:8.5%;bottom:13%;left:24.1%;right:22%;pointer-events:none}
-.v4-cockpit .core-title{left:4%;top:3%}
+.v4-cockpit .core-title{left:4%;top:3%;right:4%;padding-bottom:.25cqw}
 .v4-cockpit .core-title .eyebrow{font-size:.84cqw;letter-spacing:.08em}
 .v4-cockpit .core-title h1{font-size:2.38cqw;line-height:1.13;text-shadow:0 3px 15px #010815;margin:.6cqw 0 0}
 .v4-cockpit #graph{opacity:0!important;pointer-events:none}
@@ -115,9 +115,11 @@ body{background:#02050c}
 .v4-cockpit .progress-line{left:22%;right:11%;bottom:2.9%;z-index:12;height:2px;background:rgba(11,67,99,.5)}
 .v4-cockpit .progress-line i{box-shadow:0 0 14px #fb59bc}
 .v4-cockpit .render-mode-status{top:6.3%;right:23%;z-index:8;font-size:.62cqw;max-width:30%;white-space:nowrap}
-.render-mode .mind-shell{width:1280px;max-width:none;padding:0}
-.render-mode .v4-cockpit{width:1280px;height:720px;aspect-ratio:16/9}
+.render-mode .mind-shell{width:100vw;max-width:none;padding:0}
+.render-mode .stage.v4-cockpit{width:100vw;height:100vh;aspect-ratio:16/9;border:0}
 .render-mode .mind-nav{display:none}
+.asset-credit{font-size:11px}
+.mobile-hud{display:none}
 @media(max-width:860px){
   .mind-shell{padding:8px 7px 42px}
   .mind-nav{font-size:9px}
@@ -141,4 +143,24 @@ body{background:#02050c}
   .v4-cockpit .trace-lines{grid-template-columns:1fr;gap:5px;font-size:11px;padding:12px}
   .v4-cockpit .progress-line{left:3%;right:3%;bottom:1.5%}
   .v4-cockpit .render-mode-status{top:10%;right:3%;font-size:8px}
+  .mobile-hud{display:block;margin-top:16px;border:1px solid #176883;background:#030d19;color:#bcd9ec}
+  .mobile-hud summary{padding:14px;cursor:pointer;font-size:13px}
+  .mobile-hud-panels{padding:0 14px 14px;display:grid;gap:18px}
+  .mobile-hud-panels .hud{display:block;position:relative;inset:auto;width:100%;padding:14px;border:1px solid #176883;clip-path:none}
+  .mobile-hud-panels .hud-title{font-size:15px;color:#dcf6ff}
+  .mobile-hud-panels .hud-subtitle{font-size:12px;margin:18px 0 12px}
+  .mobile-hud-panels .metric{font-size:11px;grid-template-columns:1fr 1.4fr 30px}
+  .mobile-hud-panels .profile-line,.mobile-hud-panels .loop-meter{font-size:11px}
+  .mobile-hud-panels .tiny{font-size:11px;color:#8caec7}
+  .mobile-hud-panels .v4-mental-profile{height:180px;gap:14px;margin-top:16px}
+  .mobile-hud-panels .v4-region-legend{font-size:9px;gap:5px}
+  .mobile-hud-panels .v4-region-legend i{width:5px;height:5px}
+  .mobile-hud-panels .v4-activity-block{height:90px;gap:8px}
+  .mobile-hud-panels .v4-frequencies{font-size:9px}
+  .mobile-hud-panels .v4-scene-composite{height:340px}
+  .mobile-hud-panels .scene-map button{font-size:12px;min-height:44px}
+  .mobile-hud-panels .v4-brain-scans{height:110px;gap:10px}
+  .mobile-hud-panels .v4-scan-title small{font-size:8px}
+  .mobile-hud-panels .v4-spectrum{font-size:9px;gap:10px}
+  .mobile-hud-panels .v4-spectrum i{height:5px}
 }

@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>为什么我总坚持不了？ · Mind Dive</title><link rel="stylesheet" href="../../styles.css"><link rel="stylesheet" href="./mind-dive.css"><link rel="stylesheet" href="./v4-cockpit.css"></head><body>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>为什么我总坚持不了？ · Mind Dive</title><link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./base.css"><link rel="stylesheet" href="./mind-dive.css"><link rel="stylesheet" href="./v4-cockpit.css"></head><body>
 <main class="mind-shell">
   <nav class="mind-nav"><a href="../../result/">← EXIT MIND</a><span>CONSCIOUSNESS OS / MIND DIVE 001</span><span id="system-status">● SYSTEM ONLINE</span></nav>
   <section id="stage" class="stage v4-cockpit" data-v4-version="4" aria-label="意识系统沉浸式解密">
@@ -140,9 +140,11 @@
 
   <section class="controls" aria-label="播放控制"><button id="play" type="button">开始有声探索</button><button id="restart" type="button">重播</button><button id="voice-toggle" type="button" aria-pressed="true" title="切换中文旁白和氛围音">声音：开</button><label class="music-control" for="music-volume">配乐 <input id="music-volume" type="range" min="0" max="100" step="5" value="68" aria-label="背景配乐音量"></label><input id="scrubber" type="range" min="0" max="36" step="0.01" value="0" aria-label="时间轴"><span id="control-time">00:00 / 00:36</span><span id="voice-status" role="status">点击播放，开启中文旁白</span></section>
 
+  <details class="mobile-hud"><summary>查看信号、脑区与章节</summary><div id="mobile-hud-panels" class="mobile-hud-panels"></div></details>
+
   <section class="aftercare" id="aftercare">
-    <div><div class="eyebrow">AFTER THE DIVE</div><h2>你已经看见旧程序。下一步是训练新的默认反应。</h2><p>训练不是“知道更多”，而是在真实触发发生时，把观察者和最小行动练成默认路径。</p></div>
+    <div><div class="eyebrow">AFTER THE DIVE</div><h2>你已经看见旧程序。下一步是训练新的默认反应。</h2><p>训练不是“知道更多”，而是在真实触发发生时，把观察者和最小行动练成默认路径。</p><p class="asset-credit">三维素材：Human Reference Atlas / Allen v1.4（CC BY 4.0）；MakeHuman / MPFB（CC0）。<a href="./ASSET_CREDITS.md">素材署名与来源</a></p></div>
     <form id="waitlist" class="waitlist"><label>训练营内测等待名单（MVP 演示）<input id="contact" name="contact" autocomplete="email" placeholder="邮箱或手机号"></label><button type="submit">留下联系方式</button><p id="waitlist-status">演示版只保存在当前浏览器会话，不会上传服务器。</p></form>
   </section>
 </main>
-<div style="position:fixed;right:10px;bottom:10px;color:#5de9fd;background:#031325ee;border:1px solid #1e6f95;padding:5px 9px;border-radius:5px;font:11px monospace;z-index:999">V4 PREVIEW · 验收版</div><script type="module" src="./app.mjs"></script></body></html>
+<script type="module" src="./app.mjs"></script></body></html>

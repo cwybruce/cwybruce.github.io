@@ -1,13 +1,13 @@
-import { WHY_CANT_I_PERSIST } from '../../src/content/questions/why-cant-i-persist.mjs';
-import { buildMindProfile } from '../../src/domain/profile.mjs';
-import { getMindDiveState, MIND_DIVE_DURATION } from '../../src/mind-dive/state.mjs';
-import { createPlaybackController } from '../../src/mind-dive/playback.mjs';
-import { buildMindDiveViewModel } from '../../src/mind-dive/view-model.mjs';
-import { getMindDiveVisualState } from '../../src/mind-dive/visual-state.mjs';
-import { drawNeuralField } from '../../src/mind-dive/neural-field.mjs';
-import { getNarrationCue } from '../../src/mind-dive/narration.mjs';
-import { createNarrationPlayer } from '../../src/mind-dive/narration-player.mjs';
-import { createAmbientEngine } from '../../src/mind-dive/ambience.mjs';
+import { WHY_CANT_I_PERSIST } from './modules/content/questions/why-cant-i-persist.mjs';
+import { buildMindProfile } from './modules/domain/profile.mjs';
+import { getMindDiveState, MIND_DIVE_DURATION } from './modules/mind-dive/state.mjs';
+import { createPlaybackController } from './modules/mind-dive/playback.mjs';
+import { buildMindDiveViewModel } from './modules/mind-dive/view-model.mjs';
+import { getMindDiveVisualState } from './modules/mind-dive/visual-state.mjs';
+import { drawNeuralField } from './modules/mind-dive/neural-field.mjs';
+import { getNarrationCue } from './modules/mind-dive/narration.mjs';
+import { createNarrationPlayer } from './modules/mind-dive/narration-player.mjs';
+import { createAmbientEngine } from './modules/mind-dive/ambience.mjs';
 import { updateV4Cockpit, initializeV4Cockpit } from './v4-cockpit.mjs';
 
 const params = new URLSearchParams(location.search);
@@ -190,8 +190,19 @@ function getSignature(){
   }
   return `${domSignature}-${(h>>>0).toString(16)}`;
 }
-window.__CONSCIOUSNESS_OS__={ready:false,seek:(seconds)=>{controller.pause();narrator.pause();return renderAt(Number(seconds));},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature,getRendererMode:()=>brainRenderMode,getRendererInfo:()=>brain3d?.getDebugState()??{mode:brainRenderMode},dispose:()=>brain3d?.destroy()};
+window.__CONSCIOUSNESS_OS__={ready:false,seek:(seconds)=>{stopPlayback();controller.seek(Number(seconds));narrator.seek(controller.getTime());ambience.seek(controller.getTime());return lastState;},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature,getPlaybackState:()=>({time:controller.getTime(),playing:controller.isPlaying()}),getRendererMode:()=>brainRenderMode,getRendererInfo:()=>brain3d?.getDebugState()??{mode:brainRenderMode},dispose:()=>brain3d?.destroy()};
 initializeV4Cockpit(document);
+// Move the same live panels into a mobile disclosure; retain IDs, updates and
+// chapter controls, instead of permanently hiding the desktop information.
+const hudMedia=matchMedia('(max-width:860px)');
+const hudPanels=[...stage.querySelectorAll('.left-hud,.right-hud')];
+const mobileHud=document.querySelector('#mobile-hud-panels');
+function placeHud(){
+  if(!mobileHud)return;
+  const parent=hudMedia.matches&&!renderMode?mobileHud:stage;
+  hudPanels.forEach(panel=>parent.append(panel));
+}
+hudMedia.addEventListener('change',placeHud);placeHud();
 const initial=Number(params.get('t')||0);controller.seek(initial);
 // Audio cannot reliably autoplay. Playback starts only after a user gesture.
 
@@ -208,7 +219,9 @@ function activateFallback(reason){
 window.addEventListener('consciousness-webgl-failed',e=>activateFallback(e.detail));
 (async()=>{
   try{
-    if(!webglCanvas?.getContext('webgl2'))throw Error('WebGL2 unsupported');
+    // createBrainScene must create the first context with capture-safe options.
+    // A probe getContext() here permanently fixes the defaults, silently
+    // disabling preserveDrawingBuffer even when the renderer requests it.
     // This separate bundle includes real pinned Three.js and GLTFLoader;
     // no runtime dependency on public CDNs or external model URLs.
     const {createBrainScene}=await import('./brain-scene.bundle.mjs');
