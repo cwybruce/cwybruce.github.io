@@ -3,6 +3,8 @@
   <nav class="mind-nav"><a href="../../result/">← EXIT MIND</a><span>CONSCIOUSNESS OS / MIND DIVE 001</span><span id="system-status">● SYSTEM ONLINE</span></nav>
   <section id="stage" class="stage" aria-label="意识系统沉浸式解密">
     <canvas id="neural" width="1280" height="720" aria-hidden="true"></canvas>
+    <canvas id="brain-webgl" width="1280" height="720" aria-label="真实 HRA 解剖大脑 WebGL 三维场景"></canvas>
+    <span id="render-mode-status" class="render-mode-status" role="status" aria-live="polite">3D 正在载入…</span>
     <img id="anatomical-texture" class="anatomical-texture" alt="" aria-hidden="true" src="./assets/brain-cortex-scan.webp" decoding="async">
     <img id="face-scan-texture" class="face-scan-texture" alt="" aria-hidden="true" src="./assets/face-scan-relief.webp" decoding="async">
     <div class="stage-grid" aria-hidden="true"></div>
@@ -107,5 +109,6 @@
     <div><div class="eyebrow">AFTER THE DIVE</div><h2>你已经看见旧程序。下一步是训练新的默认反应。</h2><p>训练不是“知道更多”，而是在真实触发发生时，把观察者和最小行动练成默认路径。</p></div>
     <form id="waitlist" class="waitlist"><label>训练营内测等待名单（MVP 演示）<input id="contact" name="contact" autocomplete="email" placeholder="邮箱或手机号"></label><button type="submit">留下联系方式</button><p id="waitlist-status">演示版只保存在当前浏览器会话，不会上传服务器。</p></form>
   </section>
+  <footer style="color:#8590a3;font-size:12px;line-height:1.6;margin-top:18px">3D 解剖模型：<a href="../../credits.html">Human Reference Atlas / Allen（CC BY 4.0）</a>。画面中的脑区激活是叙事示意，不属于真实神经测量或医学诊断。</footer>
 </main>
 <script type="module" src="./app.mjs"></script></body></html>

@@ -77,3 +77,14 @@ body{background:#020306;overflow-x:hidden}.mind-shell{max-width:1328px;margin:0 
  .core-title h1,.phase-copy h2{text-shadow:0 2px 16px #000,0 0 24px #000}
  .phase-copy{border-radius:10px;background:linear-gradient(0deg,rgba(2,4,10,.76),rgba(2,4,10,.06));padding:12px 6px}
 }
+
+/* V3: real 3D anatomical atlas renderer; never confuse its simulated signals with measurements. */
+.stage #brain-webgl{position:absolute;inset:0;width:100%;height:100%;left:0;z-index:-2;transform:none;pointer-events:none;opacity:0;transition:opacity .5s ease;object-fit:cover}
+.stage.brain-3d-active #brain-webgl{opacity:1}
+.stage.brain-3d-active #neural,.stage.brain-3d-active .anatomical-texture,.stage.brain-3d-active .face-scan-texture{display:none}
+.stage.brain-3d-active .stage-grid{opacity:.13}
+.stage .render-mode-status{position:absolute;right:23%;top:7%;z-index:3;letter-spacing:.09em;font:10px ui-monospace,monospace;color:#9ab4d0;text-shadow:0 0 9px #000;pointer-events:none}
+.stage.brain-3d-active .render-mode-status{color:#6feadf}
+.stage.brain-3d-fallback .render-mode-status{color:#ffc06e}
+.render-mode .stage .render-mode-status{font-size:10px}
+@media(max-width:800px){.stage #brain-webgl{width:100%;height:100%;left:0;transform:none}.stage .render-mode-status{left:4%;right:auto;top:10%;font-size:8px}}

@@ -23,6 +23,9 @@ const profile = buildMindProfile(result);
 const stage = document.querySelector('#stage');
 const canvas = document.querySelector('#neural');
 const ctx = canvas.getContext('2d');
+const webglCanvas=document.querySelector('#brain-webgl');
+const renderModeStatus=document.querySelector('#render-mode-status');
+let brain3d=null;let brainRenderMode='loading';
 const core = document.querySelector('#mind-core');
 const aperture = document.querySelector('#neural-aperture');
 const brainGate = document.querySelector('#brain-gate');
@@ -82,8 +85,8 @@ function renderAt(t){
   aperture.style.transform=`translate(calc(-50% + ${c.shiftX.toFixed(2)}px),calc(-50% + ${c.shiftY.toFixed(2)}px)) scale(${(0.86+c.zoom*.14).toFixed(4)}) rotate(${c.roll.toFixed(4)}rad)`;
   aperture.style.opacity=(.24+.27*visual.lensPulse).toFixed(4);
   const portrait=matchMedia('(max-width:800px)').matches && !renderMode;
-  anatomicalTexture.style.opacity=((portrait?.37:.68) + .10*visual.cyanMix + .018*Math.sin(state.time*.95)).toFixed(4);
-  facialTexture.style.opacity=((portrait?.42:.78)+.09*visual.cyanMix+.016*Math.sin(state.time*.63)).toFixed(4);
+  if(brainRenderMode!=='3d')anatomicalTexture.style.opacity=((portrait?.37:.68) + .10*visual.cyanMix + .018*Math.sin(state.time*.95)).toFixed(4);
+  if(brainRenderMode!=='3d')facialTexture.style.opacity=((portrait?.42:.78)+.09*visual.cyanMix+.016*Math.sin(state.time*.63)).toFixed(4);
   anatomicalTexture.style.setProperty('--brain-pan-x',`${(c.shiftX*.09).toFixed(2)}px`);
   anatomicalTexture.style.setProperty('--brain-pan-y',`${(c.shiftY*.07).toFixed(2)}px`);
   anatomicalTexture.style.setProperty('--brain-scale',(.98+.03*c.zoom).toFixed(4));
@@ -96,7 +99,8 @@ function renderAt(t){
   depthReadout.textContent=`${visual.depthLabel} / ${c.speed.toFixed(2)}x`;
   journeyCaption.textContent=visual.title;
   document.querySelector('#fallback-mode').textContent=profile.result.fallbackMode.toUpperCase();
-  drawNeuralField(ctx,{time:state.time,visual,width:canvas.width,height:canvas.height});
+  if(brainRenderMode==='3d'&&brain3d)brain3d.render(state.time,visual);
+  else drawNeuralField(ctx,{time:state.time,visual,width:canvas.width,height:canvas.height});
   drawPackets(vm.packetProgress,state.phase);
   return state;
 }
@@ -177,8 +181,45 @@ function getSignature(){
   const domSignature=hashText(JSON.stringify({state:lastState,text:stage.innerText,activeNodes,widths,core:core.style.transform,graph:graph.style.transform,aperture:aperture.style.transform,scan:document.querySelector('#scan').style.top}));
   const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;let h=2166136261;
   for(let i=0;i<pixels.length;i+=97){h^=pixels[i];h=Math.imul(h,16777619);}
+  if(brainRenderMode==='3d'&&brain3d){
+    const debug=brain3d.getDebugState();
+    // GPU framebuffers can vary across redraws; rely on deterministic 3D scene inputs here.
+    return `${domSignature}-${hashText(JSON.stringify(debug))}-${(h>>>0).toString(16)}`;
+  }
   return `${domSignature}-${(h>>>0).toString(16)}`;
 }
-window.__CONSCIOUSNESS_OS__={ready:true,seek:(seconds)=>{controller.pause();narrator.pause();return renderAt(Number(seconds));},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature};
+window.__CONSCIOUSNESS_OS__={ready:false,seek:(seconds)=>{controller.pause();narrator.pause();return renderAt(Number(seconds));},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature,getRendererMode:()=>brainRenderMode,getRendererInfo:()=>brain3d?.getDebugState()??{mode:brainRenderMode},dispose:()=>brain3d?.destroy()};
 const initial=Number(params.get('t')||0);controller.seek(initial);
 // Audio cannot reliably autoplay. Playback starts only after a user gesture.
+
+// Lazy WebGL layer. The licensed HRA GLB is required to claim 3D mode; a missing
+// asset, GPU failure or context loss must visibly use the old 2D educational fallback.
+function activateFallback(reason){
+  brainRenderMode='fallback';brain3d?.destroy();brain3d=null;
+  stage.classList.remove('brain-3d-active');stage.classList.add('brain-3d-fallback');
+  renderModeStatus.textContent='简化模式 · 3D 加载失败';
+  renderModeStatus.title=String(reason||'此设备无法显示实时 WebGL2');
+  renderAt(controller.getTime());
+  window.__CONSCIOUSNESS_OS__.ready=true;
+}
+window.addEventListener('consciousness-webgl-failed',e=>activateFallback(e.detail));
+(async()=>{
+  try{
+    if(!webglCanvas?.getContext('webgl2'))throw Error('WebGL2 unsupported');
+    // This separate bundle includes real pinned Three.js and GLTFLoader;
+    // no runtime dependency on public CDNs or external model URLs.
+    const {createBrainScene}=await import('./brain-scene.bundle.mjs');
+    const isMobile=matchMedia('(max-width:800px)').matches&&!renderMode;
+    const quality=isMobile?'mobile':'high';
+    brain3d=await createBrainScene({canvas:webglCanvas,modelUrl:'./assets/models/hra-allen-brain-v1.4.glb',quality});
+    brainRenderMode='3d';
+    stage.classList.add('brain-3d-active');stage.classList.remove('brain-3d-fallback');
+    renderModeStatus.textContent=`3D LIVE · HRA ATLAS / ${brain3d.model.meshCount} MESHES · 示意`;
+    document.querySelector('#system-status').textContent='● REAL 3D / WebGL2';
+    // Frame-aware resize: works for both 1280×720 film and portrait mobile.
+    brain3d.resize(stage.clientWidth,stage.clientHeight);
+    window.addEventListener('resize',()=>brain3d?.resize(stage.clientWidth,stage.clientHeight));
+    renderAt(controller.getTime());
+    window.__CONSCIOUSNESS_OS__.ready=true;
+  }catch(error){activateFallback(error?.message||error);}
+})();
