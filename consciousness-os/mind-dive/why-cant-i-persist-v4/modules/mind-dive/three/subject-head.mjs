@@ -151,9 +151,9 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
       float filament=pow(.5+.5*sin(vScanWorld.y*39.0+sin(vScanWorld.z*19.0)*3.0+vScanWorld.x*28.0),28.0);
       float neckFade=smoothstep(-2.36,-1.75,vScanWorld.y);
       float faceZone=smoothstep(.35,1.7,vScanWorld.z)*(1.0-smoothstep(1.4,2.25,vScanWorld.y));
-      gl_FragColor.rgb=vec3(.025,.09,.23)+vec3(.20,.65,1.50)*faceRim
+      gl_FragColor.rgb=vec3(.025,.09,.23)+vec3(.24,.78,1.65)*faceRim
         +vec3(.07,.22,.52)*faceLight*faceZone+vec3(.28,.63,.95)*faceSpecular*faceZone;
-      gl_FragColor.a=clamp((.02+.075*faceZone+faceRim*.90*mix(.24,1.0,faceZone)+faceLight*faceZone*.24+scanEdge*.003+filament*.003)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
+      gl_FragColor.a=clamp((.02+.075*faceZone+faceRim*.90*mix(.24,1.0,faceZone)+faceLight*faceZone*.24+scanEdge*.003+filament*.018)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
       #include <dithering_fragment>
      `);
    };

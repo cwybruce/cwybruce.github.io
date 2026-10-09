@@ -13,7 +13,7 @@ const ROUTES=[['pfc','striatum',0],['pfc','amygdala',0],['parietal','thalamus',1
  ['cerebellum','brainstem',1],['thalamus','brainstem',0],['brainstem','spine',1]];
 
 /** Fixed bundled curves; only absolute-time GPU uniforms and hub scales animate. */
-export function createNeuralSignals(THREE,{mobile=false}={}){
+export function createNeuralSignals(THREE,{mobile=false,atlas=null}={}){
  const root=new THREE.Group();root.name='Illustrative neural signals';
  const strands=mobile?8:18,samples=mobile?28:46;
  const positions=[],phases=[],groups=[],linePositions=[],lineProgress=[],lineGroups=[],bundleCurves=[];
@@ -69,6 +69,49 @@ export function createNeuralSignals(THREE,{mobile=false}={}){
   geometry.setAttribute('aProgress',new THREE.BufferAttribute(progress,1));geometry.setAttribute('aGroup',new THREE.BufferAttribute(hue,1));
   const filament=new THREE.Mesh(geometry,fiberMaterial);filament.renderOrder=12;filament.name='Luminous route filament';root.add(filament);
  }
+ // Grow a fine narrative field to sampled vertices of the licensed cortex.
+ // Endpoints follow the real surface; the connecting paths remain illustration.
+ const surfaceEndpoints=[],fieldVisibility={value:1};
+ if(atlas?.root){
+  atlas.root.updateMatrixWorld(true);
+  const inverse=atlas.root.matrixWorld.clone().invert(),ends=[],parcels=[],budget=mobile?140:360;
+  atlas.root.traverse(o=>{
+   if(!o.isMesh||! /gyrus|gyri|lobule|operculum|cortex|occipital/.test(o.name))return;
+   const pos=o.geometry.attributes.position,stride=Math.max(1,Math.floor(pos.count/16)),candidates=[];
+   for(let i=0;i<pos.count;i+=stride){
+    const p=new THREE.Vector3().fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld).applyMatrix4(inverse);
+    if(p.x<-.20)candidates.push(p);
+   }
+   if(candidates.length)parcels.push(candidates);
+  });
+  // Round-robin parcels before taking another endpoint from any one mesh.
+  for(let round=0;round<17&&ends.length<budget;round++)for(const parcel of parcels){
+   if(parcel[round]&&ends.length<budget){ends.push(parcel[round]);surfaceEndpoints.push(parcel[round].clone());}
+  }
+  const vertices=[],progresses=[],colors=[];
+  for(let i=0;i<ends.length;i++){
+   const b=ends[i],group=b.z>.20?1:0;
+   const names=['pfc','parietal','insula','thalamus'];
+   const nearest=names.map(name=>new THREE.Vector3(...SIGNAL_ANCHORS[name])).sort((a,c)=>a.distanceToSquared(b)-c.distanceToSquared(b))[0];
+   const a=nearest.clone().lerp(new THREE.Vector3(...SIGNAL_ANCHORS.thalamus),i%5===0?.55:0);
+   const mid=a.clone().lerp(b,.55).add(new THREE.Vector3(-.12-.12*Math.sin(i*2.4),.12*Math.sin(i*1.7),.10*Math.cos(i*2.1)));
+   const curve=new THREE.CatmullRomCurve3([a,mid,b]);let prev=null;
+   for(let j=0;j<20;j++){
+    const t=j/19,p=curve.getPoint(t);
+    if(prev){vertices.push(...prev.toArray(),...p.toArray());progresses.push(t+i*.137,t+i*.137);colors.push(group,group);}
+    prev=p;
+   }
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));g.setAttribute('aProgress',new THREE.Float32BufferAttribute(progresses,1));g.setAttribute('aGroup',new THREE.Float32BufferAttribute(colors,1));
+  const m=new THREE.ShaderMaterial({uniforms:{uTime:uniforms.uTime,uRouteMix:uniforms.uRouteMix,uFieldVisibility:fieldVisibility},vertexShader:tractShaders.vertex,
+   fragmentShader:tractShaders.fragment.replace('uniform float uRouteMix;','uniform float uRouteMix;uniform float uFieldVisibility;').replace('(.07+.36*trail)*strength','(.025+.21*trail)*strength*uFieldVisibility'),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending});
+  const field=new THREE.LineSegments(g,m);field.name='Atlas cortical arborizations';field.renderOrder=12;root.add(field);
+  const dots=[],phases=[],groups=[];
+  for(let i=0;i<vertices.length;i+=6){dots.push(...vertices.slice(i+3,i+6));phases.push(progresses[i/3+1]%1);groups.push(colors[i/3+1]);}
+  const dotGeometry=new THREE.BufferGeometry();dotGeometry.setAttribute('position',new THREE.Float32BufferAttribute(dots,3));dotGeometry.setAttribute('aPhase',new THREE.Float32BufferAttribute(phases,1));dotGeometry.setAttribute('aGroup',new THREE.Float32BufferAttribute(groups,1));
+  const dotMaterial=new THREE.ShaderMaterial({uniforms:{...uniforms,uFieldVisibility:fieldVisibility},vertexShader:neuralSignalShaders.vertex,fragmentShader:neuralSignalShaders.fragment.replace('uniform float uRouteMix;','uniform float uRouteMix;uniform float uFieldVisibility;').replace('a*strength*.48','a*strength*.48*uFieldVisibility'),transparent:true,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending});
+  const nodeField=new THREE.Points(dotGeometry,dotMaterial);nodeField.name='Cortical signal dust';nodeField.renderOrder=12;root.add(nodeField);
+ }
  const hubs=[];
  for(const [name,xyz]of Object.entries(SIGNAL_ANCHORS)){
   if(name==='spine')continue;
@@ -80,8 +123,8 @@ export function createNeuralSignals(THREE,{mobile=false}={}){
    fragmentShader:'varying vec2 vUv;uniform vec3 uColor;uniform float uPulse;void main(){vec2 p=vUv-.5;float d=length(p);float halo=exp(-d*d*32.0);float core=exp(-d*d*550.0);float rays=exp(-abs(p.x)*180.0)*exp(-abs(p.y)*8.0)+exp(-abs(p.y)*180.0)*exp(-abs(p.x)*8.0);gl_FragColor=vec4(uColor*(halo*1.4+core*3.0)+vec3(core*2.0),clamp((halo*.52+core*.9+rays*.18)*uPulse,0.0,1.0));}'}));
   glow.position.copy(orb.position);glow.renderOrder=13;root.add(glow);hubs.push({orb,glow});
  }
- return {root,anchors:SIGNAL_ANCHORS,routeCount:ROUTES.length,
-  update(t,routeMix,camera){uniforms.uTime.value=t;uniforms.uRouteMix.value=routeMix;root.updateMatrixWorld(true);hubs.forEach(({orb,glow},i)=>{
+ return {root,surfaceEndpoints,anchors:SIGNAL_ANCHORS,routeCount:ROUTES.length,
+  update(t,routeMix,camera,exterior=1){fieldVisibility.value=exterior;uniforms.uTime.value=t;uniforms.uRouteMix.value=routeMix;root.updateMatrixWorld(true);hubs.forEach(({orb,glow},i)=>{
    const pulse=.83+.22*Math.sin(t*(2.1+i*.17)+i);
    // Bound apparent hub size when the camera dives inside the brain. The same
    // exterior highlight must not become a full-screen white billboard nearby.

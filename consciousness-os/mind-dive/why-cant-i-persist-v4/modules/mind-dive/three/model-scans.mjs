@@ -5,13 +5,13 @@ export function createModelScans(THREE,{atlas,head}){
  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true,preserveDrawingBuffer:true});
  renderer.setSize(216,280,false);renderer.setPixelRatio(1);renderer.localClippingEnabled=true;
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.setClearColor(0x02060d,0);
- const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-2.65,2.65,3.43,-3.43,.1,30);
+ const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-2.2,2.2,2.85,-2.85,.1,30);
  scene.add(new THREE.AmbientLight(0x90b2da,1.15));
  const key=new THREE.DirectionalLight(0xc5e8ff,2.4);key.position.set(-4,6,5);scene.add(key);
  const brain=atlas.root.clone(true);brain.scale.setScalar(1);brain.position.set(0,0,0);scene.add(brain);
  const materials=[],clipMaterials=[];
- brain.traverse(o=>{if(!o.isMesh)return;const region=o.userData.anatomicalRegion,deep=['hippocampus','amygdala','thalamus','striatum'].includes(region);
-  const m=new THREE.MeshPhongMaterial({color:deep?0xaa67a5:0x526f95,emissive:deep?0x381237:0x020711,specular:0x94ccff,shininess:34,side:THREE.DoubleSide});o.material=m;materials.push(m);clipMaterials.push(m);
+ brain.traverse(o=>{if(!o.isMesh)return;const region=o.userData.anatomicalRegion,deep=['hippocampus','amygdala','thalamus','striatum','brainstem','connections'].includes(region);
+  const m=new THREE.MeshPhongMaterial({color:deep?0xbb86b7:0x7e93b0,emissive:deep?0x32142e:0x05101c,specular:0x94ccff,shininess:34,side:THREE.DoubleSide});o.material=m;materials.push(m);clipMaterials.push(m);
  });
  const capture=(position,up,plane)=>{camera.position.set(...position);camera.up.set(...up);camera.lookAt(0,0,0);clipMaterials.forEach(m=>m.clippingPlanes=plane?[plane]:[]);renderer.render(scene,camera);return canvas.toDataURL('image/png');};
  try{

@@ -43,7 +43,7 @@ body{background:#02050c}
 .v4-mini-head{position:relative;width:54%;height:100%;min-height:11.4cqw;border:1px solid #18799f;background:radial-gradient(ellipse,#183152,#031023 74%);overflow:hidden}
 .v4-mini-head svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 3px #598cff)}
 .v4-mini-reticle{position:absolute;top:42%;left:48%;font-size:1cqw;color:#ff7bdb;text-shadow:0 0 10px #ff33bd}
-.v4-region-legend{display:grid;grid-template-rows:repeat(9,1fr);gap:.15cqw;justify-content:center;color:#99b7d8;font-size:.64cqw;line-height:1.3;min-width:38%;white-space:nowrap}
+.v4-region-legend{display:grid;grid-template-rows:repeat(9,1fr);gap:.15cqw;justify-content:center;color:#99b7d8;font-size:.74cqw;line-height:1.3;min-width:38%;white-space:nowrap}
 .v4-region-legend div{display:flex;align-items:center;gap:.4cqw}
 .v4-region-legend i{display:inline-block;border-radius:50%;width:.47cqw;height:.47cqw;background:#5e91bd;box-shadow:0 0 6px rgba(70,178,247,.5)}
 .v4-region-legend div:nth-child(1) i,.v4-region-legend div:nth-child(5) i{background:#ff4fb6}
@@ -133,7 +133,7 @@ body{background:#02050c}
 .model-scan-image{display:block;width:100%;height:100%;object-fit:contain;filter:contrast(1.18) brightness(1.1)}
 .v4-mini-head.model-scan{background:#020812}
 .v4-mini-head.model-scan:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 48%,#e94dad99 49%,transparent 50%),linear-gradient(0deg,transparent 55%,#e94dad99 56%,transparent 57%)}
-.v4-slice.model-slice{height:29%;border:0;border-radius:0;transform:rotateX(42deg);background-color:transparent;background-size:100% 100%;background-repeat:no-repeat;box-shadow:none;opacity:.56;filter:brightness(.8) saturate(.8)}
+.v4-slice.model-slice{height:29%;border:0;border-radius:0;transform:rotateX(42deg);background-color:transparent;background-size:100% 100%;background-repeat:no-repeat;box-shadow:none;opacity:.68;filter:brightness(1.05) saturate(.8)}
 .v4-slice.model-slice:before,.v4-slice.model-slice:after{display:none}
 .v4-slice.model-slice.active{opacity:1;filter:grayscale(1) sepia(1) saturate(3) hue-rotate(270deg) brightness(1.3) drop-shadow(0 0 5px #fc50bd)}
 .v4-cockpit .mind-core .phase-copy p{max-width:80%;margin-left:auto;margin-right:auto;line-height:1.65;text-wrap:balance}

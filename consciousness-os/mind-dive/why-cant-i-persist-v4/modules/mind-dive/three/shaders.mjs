@@ -27,7 +27,7 @@ fragment:`
  void main(){
    vec3 n=normalize(vNormal);
    float facing=abs(dot(n,normalize(vEye)));
-   float fresnel=pow(max(0.0,1.0-facing),2.5);
+   float fresnel=pow(max(0.0,1.0-facing),3.5);
    vec3 key=normalize(vec3(-.48,.72,.85));
    float diffuse=max(0.0,dot(n,key));
    float specular=pow(max(0.0,dot(n,normalize(key+normalize(vEye)))),52.0);
@@ -35,16 +35,35 @@ fragment:`
    float coreFalloff=exp(-length(vWorld-vec3(-.35,1.30,.15))*1.10);
    // Rounded gyri come from the licensed mesh normals, with dark recesses.
    // Spatial lights stay legible at rest; absolute time moves only their activity.
-   vec3 color=vec3(.002,.006,.020)+vec3(.006,.075,.30)*pow(diffuse,1.7);
-   color+=vec3(.06,.85,3.5)*fresnel;
-   color+=vec3(.55,1.8,3.0)*specular*.90;
+   vec3 color=vec3(.002,.006,.020)+vec3(.006,.11,.34)*pow(diffuse,1.7);
+   color+=vec3(.13,1.80,6.5)*fresnel;
+   color+=vec3(1.0,2.1,3.2)*specular*.95;
    color+=vec3(.85,.008,.28)*pinkLight*(.06+.30*coreFalloff)*(1.0-.35*uRouteMix);
    vec3 focusDelta=vWorld-vec3(-.95,2.15,-.75);
    float pinkFocus=exp(-dot(focusDelta,focusDelta)*1.5)*(1.0-.55*uRouteMix);
    vec3 rose=vec3(.007,.002,.018)+vec3(.09,.003,.06)*pow(diffuse,2.0)
      +vec3(1.8,.05,1.05)*fresnel+vec3(1.8,.55,1.45)*specular*.60;
    color=mix(color,rose,pinkFocus*.78);
-   float alpha=clamp(.34+.52*fresnel+.09*diffuse,.0,.95);
+   float alpha=clamp(.16+.68*sqrt(fresnel)+.04*diffuse,.0,.90);
+   // Named HRA structures carry distinct narrative light, never clinical values.
+   bool deep=uRegion==2.0||uRegion==3.0||uRegion==4.0||uRegion==8.0||uRegion==11.0||uRegion==12.0;
+   if(deep){
+     vec3 tint=vec3(1.65,.10,1.0);
+     if(uRegion==3.0)tint=vec3(2.0,.55,.38);
+     if(uRegion==4.0)tint=vec3(2.0,.16,.80);
+     if(uRegion==8.0)tint=vec3(2.4,.65,1.25);
+     if(uRegion==11.0)tint=mix(vec3(.12,1.8,2.8),vec3(1.5,.10,1.8),smoothstep(-.7,.6,vWorld.y));
+     if(uRegion==12.0)tint=vec3(1.8,.38,2.0);
+     float contour=pow(max(0.0,1.0-facing),1.45);
+     float hatch=pow(.5+.5*sin(vWorld.y*65.0+vWorld.z*12.0),22.0);
+     color=tint*(.03+.12*diffuse+contour*1.2+specular*.40);
+     color+=tint*hatch*(uRegion==11.0?.20:.05);
+     alpha=clamp(.035+.28*contour+specular*.06,.0,.40);
+   }else if(uRegion==10.0){
+     float folia=pow(.5+.5*sin(vWorld.y*90.0+sin(vWorld.z*8.0)*2.0),24.0);
+     color+=vec3(.08,.7,1.6)*folia*(.15+fresnel);
+   }
+
    gl_FragColor=vec4(color,alpha*uVisibility);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
