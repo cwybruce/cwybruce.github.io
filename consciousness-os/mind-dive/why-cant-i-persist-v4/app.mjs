@@ -9,6 +9,8 @@ import { getNarrationCue } from './modules/mind-dive/narration.mjs';
 import { createNarrationPlayer } from './modules/mind-dive/narration-player.mjs';
 import { createAmbientEngine } from './modules/mind-dive/ambience.mjs';
 import { updateV4Cockpit, initializeV4Cockpit } from './v4-cockpit.mjs';
+import { createMicroAction } from './modules/domain/micro-action.mjs';
+import { initializeMicroAction } from './micro-action.mjs';
 
 const params = new URLSearchParams(location.search);
 const renderMode = params.get('render') === '1';
@@ -114,6 +116,7 @@ const musicSlider=document.querySelector('#music-volume');
 const recordedAudio=renderMode?null:document.querySelector('#recorded-narration');
 const recordedScore=renderMode?null:document.querySelector('#recorded-score');
 let narrator;
+let actionUI;
 const ambience=renderMode?createAmbientEngine({AudioContextCtor:null}):createAmbientEngine({recordedAudio:recordedScore});
 if(recordedScore?.dataset.scoreSrc){
   recordedScore.addEventListener('loadedmetadata',()=>{
@@ -133,6 +136,7 @@ const controller=createPlaybackController({duration:MIND_DIVE_DURATION,onFrame:(
   narrator?.tick(t);
   if(!renderMode)ambience.seek(t);
   if(t>=MIND_DIVE_DURATION&&playButton.textContent==='暂停')playButton.textContent='重播探索';
+  if(t>=MIND_DIVE_DURATION)actionUI?.showEnd({reveal:controller.isPlaying()});
 },reducedMotion:renderMode||matchMedia('(prefers-reduced-motion: reduce)').matches});
 narrator=createNarrationPlayer({speech:renderMode?null:globalThis.speechSynthesis,createUtterance:(text)=>new SpeechSynthesisUtterance(text),getTime:()=>controller.getTime(),recordedAudio});
 if(recordedAudio?.dataset.voiceSrc){
@@ -173,6 +177,11 @@ document.querySelector('#scrubber').addEventListener('input',(e)=>{stopPlayback(
 document.querySelectorAll('#scene-map button').forEach((button)=>button.addEventListener('click',()=>{stopPlayback();controller.seek(Number(button.dataset.time));narrator.seek(controller.getTime());}));
 
 const waitlist=document.querySelector('#waitlist');
+if(!renderMode){
+  let storage=null;try{storage=globalThis.sessionStorage;}catch{/* Practice remains available without storage. */}
+  const session=createMicroAction({choices:WHY_CANT_I_PERSIST.microAction.choices,storage});
+  actionUI=initializeMicroAction({document,session,content:WHY_CANT_I_PERSIST.microAction,stopPlayback});
+}
 waitlist.addEventListener('submit',(event)=>{event.preventDefault();const value=document.querySelector('#contact').value.trim();const ok=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)||/^\+?[\d\s-]{7,18}$/.test(value);const status=document.querySelector('#waitlist-status');if(!ok){status.textContent='请输入可识别的邮箱或手机号。';status.style.color='#ff7bbb';return;}sessionStorage.setItem('consciousness-waitlist-demo',value);status.textContent='已保存在当前浏览器会话中（演示版未上传服务器）。';status.style.color='#69e9c4';});
 
 function getCheck(){const overflows=[];document.querySelectorAll('.check-text').forEach((el,index)=>{if(el.scrollWidth>el.clientWidth+2||el.scrollHeight>el.clientHeight+2)overflows.push(`${el.id||el.className||'text'}:${index}`);});return{overflows,stage:{width:stage.clientWidth,height:stage.clientHeight}};}

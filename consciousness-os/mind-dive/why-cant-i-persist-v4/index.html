@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>为什么我总坚持不了？ · Mind Dive</title><link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./base.css"><link rel="stylesheet" href="./mind-dive.css"><link rel="stylesheet" href="./v4-cockpit.css"></head><body>
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>为什么我总坚持不了？ · Mind Dive</title><link rel="icon" href="./assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./base.css"><link rel="stylesheet" href="./mind-dive.css"><link rel="stylesheet" href="./v4-cockpit.css"><link rel="stylesheet" href="./micro-action.css"></head><body>
 <main class="mind-shell">
   <nav class="mind-nav"><a href="../../result/">← EXIT MIND</a><span>CONSCIOUSNESS OS / MIND DIVE 001</span><span id="system-status">● SYSTEM ONLINE</span></nav>
   <section id="stage" class="stage v4-cockpit" data-v4-version="4" aria-label="意识系统沉浸式解密">
@@ -141,6 +141,24 @@
   <section class="controls" aria-label="播放控制"><button id="play" type="button">开始有声探索</button><button id="restart" type="button">重播</button><button id="voice-toggle" type="button" aria-pressed="true" title="切换中文旁白和氛围音">声音：开</button><label class="music-control" for="music-volume">配乐 / 音效 <input id="music-volume" type="range" min="0" max="100" step="1" value="68" aria-label="配乐和音效音量"></label><input id="scrubber" type="range" min="0" max="36" step="0.01" value="0" aria-label="时间轴"><span id="control-time">00:00 / 00:36</span><span id="voice-status" role="status">点击播放，开启中文旁白</span></section>
 
   <details class="mobile-hud"><summary>查看信号、脑区与章节</summary><div id="mobile-hud-panels" class="mobile-hud-panels"></div></details>
+
+  <a class="action-entry" id="action-entry" href="#micro-action">把刚才看见的，变成一个两分钟动作 ↓</a>
+  <section class="micro-action" id="micro-action" aria-labelledby="action-title" data-status="idle">
+    <div class="eyebrow">FROM INSIGHT TO ACTION / 从看见到行动</div>
+    <h2 id="action-title">不必坚持全部，先回来两分钟。</h2>
+    <p id="action-trigger"></p>
+    <fieldset><legend>选一个与你原本计划有关的小动作</legend><div class="action-choices" id="action-choices"></div></fieldset>
+    <div class="action-session"><output id="action-timer" aria-label="行动剩余时间" aria-live="off">02:00</output><button id="action-start" type="button" disabled>开始这两分钟</button><button id="action-pause" type="button" hidden>暂停</button><button id="action-reset" type="button" hidden>重新选择</button></div>
+    <p id="action-status" role="status"></p>
+    <p>两分钟只是一个起点。可以切换到材料或文档，计时会继续；刷新后暂停。结果由你报告。</p>
+    <div id="action-feedback" class="action-feedback" hidden>
+      <p>实际做了多少？可以提前报告，也可以记录这次尚未开始。</p>
+      <label for="action-reason">如果尚未完成，卡在哪里？（可选）<select id="action-reason"><option value="">先不填写</option><option value="too-big">动作还是太大</option><option value="interrupted">被其他事情打断</option><option value="rest">我确实需要休息</option></select></label>
+      <button id="action-complete" type="button">我完成了这个小动作</button><button id="action-incomplete" type="button">这次尚未完成</button>
+    </div>
+    <p id="action-result" role="status" hidden></p>
+    <p id="action-storage">只在本次浏览器会话保留，不会上传。</p>
+  </section>
 
   <section class="aftercare" id="aftercare">
     <div><div class="eyebrow">AFTER THE DIVE</div><h2>你已经看见旧程序。下一步是训练新的默认反应。</h2><p>训练不是“知道更多”，而是在真实触发发生时，把观察者和最小行动练成默认路径。</p><p class="asset-credit">三维素材：Human Reference Atlas / Allen v1.4（CC BY 4.0）；MakeHuman / MPFB（CC0）。<a href="./ASSET_CREDITS.md">素材署名与来源</a></p></div>

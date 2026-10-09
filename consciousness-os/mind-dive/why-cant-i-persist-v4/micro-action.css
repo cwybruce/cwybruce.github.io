@@ -1,0 +1,20 @@
+.action-entry{display:inline-block;margin-top:22px;color:#6ae8ff;text-underline-offset:5px;font-size:15px}
+.micro-action{margin-top:24px;padding:28px;border:1px solid #245164;background:linear-gradient(135deg,#091823,#080c16);border-radius:12px;scroll-margin-top:20px}
+.micro-action .eyebrow{font:12px ui-monospace,monospace;letter-spacing:.12em;color:#69e9ff}
+.micro-action h2{font-size:clamp(24px,3vw,36px);margin:10px 0 12px;line-height:1.3}
+.micro-action p{line-height:1.7;color:#bac8d9;max-width:850px}
+.micro-action fieldset{padding:0;border:0;margin:22px 0}.micro-action legend{margin-bottom:12px;color:#eaf3ff;font-weight:700}
+.action-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.action-choice{display:flex;align-items:flex-start;gap:10px;padding:18px;border:1px solid #304358;border-radius:8px;background:#0a121e;cursor:pointer}
+.action-choice:has(input:checked){border-color:#67e8ff;background:#102734}.action-choice input{margin-top:5px;accent-color:#67e8ff;flex-shrink:0}
+.action-choice strong{display:block;color:#edf7ff;font-size:17px}.action-choice small{display:block;margin-top:9px;font-size:14px;line-height:1.7;color:#b1c2d4}
+.action-session{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.action-session output{font:40px ui-monospace,monospace;color:#6ae8ff;margin-right:12px;letter-spacing:.06em}
+.micro-action button{min-height:44px;padding:10px 18px;border:1px solid #426276;border-radius:6px;background:#101f2d;color:#ecf8ff;font:inherit;cursor:pointer}
+.micro-action #action-start{background:#65e4f2;color:#05151c;font-weight:700}.micro-action button:disabled{opacity:.45;cursor:default}
+.micro-action :focus-visible,.action-entry:focus-visible{outline:2px solid #ff79cc;outline-offset:4px}
+.action-feedback{border-top:1px solid #27394b;margin-top:22px;padding-top:14px}.action-feedback label{display:block;margin-bottom:14px;color:#c9d8e9}
+.action-feedback select{background:#0b1622;color:#edf5ff;border:1px solid #426276;border-radius:5px;padding:10px;margin:6px 0 0 10px;font:inherit;max-width:100%}
+.action-feedback button{margin:0 8px 8px 0}.micro-action #action-result{border-left:3px solid #6ae8ff;padding:14px 18px;background:#102130;color:#eff8ff}
+.micro-action #action-storage{font-size:12px;color:#91a6bd;margin-bottom:0}.micro-action [hidden]{display:none!important}
+.render-mode .micro-action,.render-mode .action-entry{display:none}
+@media(max-width:800px){.micro-action{padding:20px 16px}.action-choices{grid-template-columns:1fr}.action-choice{padding:14px}.action-feedback select{display:block;margin-left:0}.micro-action h2{font-size:25px}}
