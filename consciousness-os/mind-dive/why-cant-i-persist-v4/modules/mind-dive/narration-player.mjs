@@ -43,7 +43,13 @@ export function createNarrationPlayer({speech,createUtterance,getTime=()=>0,reco
     get voiceMode(){return currentMode;},
     get recordedAvailable(){return recordedAvailable;},
     getAudioTime(){return currentMode==='recorded'&&playing&&recordedAudio?Number(recordedAudio.currentTime):null;},
-    setRecordedAvailable(value){recordedAvailable=Boolean(value&&recordedAudio);},
+    setRecordedAvailable(value){
+      recordedAvailable=Boolean(value&&recordedAudio);
+      if(!recordedAvailable&&currentMode==='recorded'){
+        stopRecorded();currentMode='none';
+        if(playing&&!muted){currentCue=getNarrationCue(getTime());playCurrent(getTime());}
+      }
+    },
     playAt(seconds=getTime()){playing=true;currentCue=getNarrationCue(seconds);playCurrent(seconds);},
     pause(){playing=false;stopSpeech();stopRecorded();currentMode='none';},
     tick(seconds){

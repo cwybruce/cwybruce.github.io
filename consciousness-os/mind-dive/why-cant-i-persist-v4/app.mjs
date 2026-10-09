@@ -139,8 +139,8 @@ if(recordedAudio?.dataset.voiceSrc){
   recordedAudio.addEventListener('loadedmetadata',()=>{
     const ready=Math.abs(recordedAudio.duration-MIND_DIVE_DURATION)<.75;
     narrator.setRecordedAvailable(ready);
-    if(ready)voiceStatus.textContent='专业中文男声已就绪，点击播放';
-    else voiceStatus.textContent='专业配音时长不符，改用设备语音';
+    if(ready)voiceStatus.textContent='中文男声与空间音效已就绪，点击播放';
+    else voiceStatus.textContent='配音时长不符，改用设备语音';
   });
   recordedAudio.addEventListener('error',()=>{narrator.setRecordedAvailable(false);voiceStatus.textContent='语音文件不可用，改用设备语音';});
   recordedAudio.src=recordedAudio.dataset.voiceSrc;
@@ -156,7 +156,7 @@ function startPlayback(){
   controller.play();
   if(voiceButton.getAttribute('aria-pressed')==='true'){
     narrator.playAt(controller.getTime());ambience.start(controller.getTime());
-    voiceStatus.textContent=narrator.voiceMode==='recorded'?'专业男声 + 钢琴氛围配乐':narrator.available?'设备中文男声 + 钢琴氛围配乐':'仅钢琴配乐和字幕；本机无中文 TTS';
+    voiceStatus.textContent=narrator.voiceMode==='recorded'?'中文男声 + 钢琴 · 空间音效':narrator.available?'设备中文男声 + 钢琴氛围配乐':'仅钢琴配乐和字幕；本机无中文 TTS';
   }
   playButton.textContent='暂停';
 }

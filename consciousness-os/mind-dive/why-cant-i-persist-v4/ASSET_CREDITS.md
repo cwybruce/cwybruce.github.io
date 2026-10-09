@@ -1,4 +1,4 @@
-# Anatomical Assets / 解剖资产署名（V3）
+# Asset Credits / 解剖及音频资产署名
 
 ## HRA Allen Human Brain (Male), v1.4
 
@@ -32,3 +32,22 @@ This is a story visualization of habit loops, **not actual EEG, fMRI, an individ
 - **Fallback:** When the CC0 asset cannot be downloaded, a deterministic procedural head and neck mesh remains available to avoid a blank scene. Do not label procedural fallback as a scanned head.
 
 Verified source page on 2026-10-09: the Innerscene listing explicitly dedicates this model to CC0 and permits modification and redistribution, including commercial use. The whole-body bounding box includes forward feet; V4 corrects a 1.415 normalized-unit sagittal offset to align the cranium with the brain. This is an artist's illustrative alignment, not patient-specific medical registration.
+
+## Local Kokoro Mandarin narration
+
+- Model authors/source: hexgrad, Kokoro-82M v1.1-zh — https://huggingface.co/hexgrad/Kokoro-82M-v1.1-zh
+- Model license: Apache License 2.0, as declared in the official model card.
+- Pinned model revision: `01e7505bd6a7a2ac4975463114c3a7650a9f7218`.
+- Verified weight SHA-256: `b1d8410fa44dfb5c15471fd6c4225ea6b4e9ac7fa03c98e8bea47a9928476e2b`.
+- Code: https://github.com/hexgrad/kokoro (Apache-2.0); local Kokoro/Misaki 0.9.4.
+- Auditions use official Mandarin male voice packs `zm_010` and `zm_011`.
+  These are synthesized stock model voices, with no custom cloning or uploaded
+  person's recording. Model and voice packs are cached locally, not website assets.
+- The new stereo sweeps, pulses and bells are original mathematical synthesis in
+  `scripts/generate_effects.py`; no reference soundtrack or external sound sample
+  was used. The existing piano score is original synthesis in `generate_score.py`.
+- The user selected B (`zm_011`) for the final 36-second narration. The website
+  plays generated MP3 files, with narration separate from the original music and
+  effects mix; no speech model or paid API is required in the browser.
+- Audition receipts: `docs/audio/2026-10-09-auditions.md`; final generation and
+  mastering receipts: `docs/audio/2026-10-09-v4/README.md`.
