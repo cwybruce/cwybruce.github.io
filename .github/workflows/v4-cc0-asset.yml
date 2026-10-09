@@ -1,0 +1,45 @@
+name: Publish CC0 transparent human head for Consciousness OS V4
+on:
+  push:
+    branches: [master]
+    paths: [.github/workflows/v4-cc0-asset.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  cc0-head:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download public-domain MakeHuman head mesh and verify checksum
+        run: |
+          set -euo pipefail
+          TARGET=consciousness-os/mind-dive/why-cant-i-persist/assets/models/cc0-human-base.glb
+          mkdir -p "$(dirname "$TARGET")"
+          curl -fL --retry 3 --max-time 210 -H 'User-Agent: Mozilla/5.0' -o "$TARGET.tmp" \
+            'https://www.innerscene.com/api/library/human-base-mesh-with-editable-53-bone-rig-8e7c8ab1/download'
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib,struct
+          p=Path('consciousness-os/mind-dive/why-cant-i-persist/assets/models/cc0-human-base.glb.tmp')
+          b=p.read_bytes()
+          h=hashlib.sha256(b).hexdigest()
+          assert len(b)==4994640,len(b)
+          assert b[:4]==b'glTF' and struct.unpack_from('<I',b,8)[0]==len(b)
+          assert h=='7135e03b6259e970458deff3e0458610914d7c35164cae12611101361e4a5749',h
+          print('VERIFIED_CC0_MAKEHUMAN_GLB',len(b),h)
+          PY
+          mv "$TARGET.tmp" "$TARGET"
+      - name: Publish binary to GitHub Pages assets
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f consciousness-os/mind-dive/why-cant-i-persist/assets/models/cc0-human-base.glb
+          if git diff --cached --quiet; then
+            echo "Binary unchanged"
+          else
+            git commit -m "assets: public-domain MakeHuman CC0 head for V4 Mind Dive"
+            git push origin HEAD:master
+          fi
