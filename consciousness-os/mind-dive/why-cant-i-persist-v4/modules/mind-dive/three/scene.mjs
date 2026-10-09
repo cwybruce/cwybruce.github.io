@@ -23,7 +23,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
  renderer.localClippingEnabled=true;
  renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;
- renderer.toneMappingExposure=0.84;
+ renderer.toneMappingExposure=0.96;
  const profile=getVolumeQuality(quality);
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,profile.pixelRatio));
  const ambient=new THREE.AmbientLight(0x475d93,.60);scene.add(ambient);
@@ -34,7 +34,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
  // cranial vault, above the facial features; keep the GLB triangles unchanged.
  source.root.scale.setScalar(.84);source.root.position.y=1.30;
  scene.add(source.root);
- const material=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uRouteMix:{value:0},uRegion:{value:0},uVisibility:{value:1}},vertexShader:brainSurfaceShaders.vertex,fragmentShader:brainSurfaceShaders.fragment,side:THREE.FrontSide,transparent:true,depthWrite:false,depthTest:true});
+ const material=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uRouteMix:{value:0},uRegion:{value:0},uVisibility:{value:1}},vertexShader:brainSurfaceShaders.vertex,fragmentShader:brainSurfaceShaders.fragment,side:THREE.FrontSide,transparent:true,depthWrite:true,depthTest:true});
  const zoneIndex={prefrontal:1,hippocampus:2,amygdala:3,striatum:4,parietal:5,temporal:6,insula:7,thalamus:8,cortex:9,cerebellum:10};
  const uniforms=[];
  source.root.traverse(object=>{
@@ -70,7 +70,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
   composer.addPass(new RenderPass(scene,camera));
   // A single non-finite HDR sample must not poison all bloom blur levels.
   composer.addPass(new ShaderPass({uniforms:{tDiffuse:{value:null}},vertexShader:'varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'uniform sampler2D tDiffuse;varying vec2 vUv;void main(){vec4 c=texture2D(tDiffuse,vUv);bvec4 bad=isnan(c);bvec4 huge=isinf(c);gl_FragColor=vec4(bad.x||huge.x?0.0:clamp(c.x,0.0,8.0),bad.y||huge.y?0.0:clamp(c.y,0.0,8.0),bad.z||huge.z?0.0:clamp(c.z,0.0,8.0),1.0);}'}));
-  composer.addPass(new UnrealBloomPass(new THREE.Vector2(1280,720),quality==='high'?.40:.25,.22,.80));
+  composer.addPass(new UnrealBloomPass(new THREE.Vector2(1280,720),quality==='high'?.48:.30,.32,.90));
   composer.addPass(new OutputPass());
  }
  let disposed=false;

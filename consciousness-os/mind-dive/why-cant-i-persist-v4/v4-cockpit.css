@@ -5,9 +5,9 @@ body{background:#02050c}
 .mind-shell{max-width:1920px;padding:8px 12px 48px}
 .mind-nav{height:24px;margin:0 1.5%;letter-spacing:.12em}
 .stage.v4-cockpit{container-type:inline-size;aspect-ratio:16/9;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse 43% 48% at 55% 45%,#132746 0%,#081329 35%,#030913 70%,#01050b 100%);border:1px solid #0c2435}
-.v4-cockpit:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 41% 35% at 53% 44%,rgba(79,163,255,.12),transparent),radial-gradient(ellipse 26% 21% at 46% 39%,rgba(250,64,205,.10),transparent),repeating-linear-gradient(0deg,transparent 0 40px,rgba(85,156,211,.035) 40px 41px);mix-blend-mode:screen}
+.v4-cockpit:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 41% 35% at 53% 44%,rgba(79,163,255,.035),transparent),radial-gradient(ellipse 26% 21% at 46% 39%,rgba(250,64,205,.03),transparent),repeating-linear-gradient(0deg,transparent 0 40px,rgba(85,156,211,.025) 40px 41px);mix-blend-mode:screen}
 .v4-cockpit.stage:after{z-index:13;box-shadow:inset 0 0 34px rgba(0,0,0,.83);border:0}
-.v4-cockpit #brain-webgl{z-index:0;mix-blend-mode:screen}
+.v4-cockpit #brain-webgl{z-index:0;mix-blend-mode:normal}
 .v4-cockpit.brain-3d-active #brain-webgl{opacity:1}
 .v4-cockpit #neural{z-index:0}
 .v4-cockpit .stage-grid{z-index:1;opacity:.20;background-size:30px 30px}

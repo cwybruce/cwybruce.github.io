@@ -143,12 +143,17 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
      shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvShellWeight=aShellWeight;').replace('#include <project_vertex>','#include <project_vertex>\nvScanWorld=(modelMatrix*vec4(transformed,1.0)).xyz;');
      shader.fragmentShader='varying float vShellWeight;varying vec3 vScanWorld;\n'+shader.fragmentShader;
      shader.fragmentShader=shader.fragmentShader.replace(marker,`
-      float faceRim=pow(max(0.0,1.0-abs(dot(normalize(normal),normalize(vViewPosition)))),5.8);
+      vec3 scanNormal=normalize(normal),scanEye=normalize(vViewPosition);
+      float faceRim=pow(max(0.0,1.0-abs(dot(scanNormal,scanEye))),3.4);
+      float faceLight=pow(max(0.0,dot(scanNormal,normalize(vec3(-.35,.65,.85)))),2.0);
+      float faceSpecular=pow(max(0.0,dot(scanNormal,normalize(scanEye+vec3(-.35,.65,.85)))),32.0);
       float scanEdge=pow(.5+.5*sin(vScanWorld.y*125.0),18.0);
       float filament=pow(.5+.5*sin(vScanWorld.y*39.0+sin(vScanWorld.z*19.0)*3.0+vScanWorld.x*28.0),28.0);
       float neckFade=smoothstep(-2.36,-1.75,vScanWorld.y);
-      gl_FragColor.rgb=vec3(.018,.07,.15)+vec3(.18,.70,1.18)*faceRim+vec3(.05,.19,.34)*(scanEdge*.18+filament*.25);
-      gl_FragColor.a=clamp((.018+faceRim*.46+scanEdge*.012+filament*.015)*opacity*6.5,0.0,.42)*vShellWeight*neckFade;
+      float faceZone=smoothstep(.35,1.7,vScanWorld.z)*(1.0-smoothstep(1.4,2.25,vScanWorld.y));
+      gl_FragColor.rgb=vec3(.006,.033,.10)+vec3(.10,.48,1.45)*faceRim
+        +vec3(.018,.12,.42)*faceLight*faceZone+vec3(.18,.52,1.0)*faceSpecular*faceZone;
+      gl_FragColor.a=clamp((.035+faceRim*.73+faceLight*faceZone*.15+scanEdge*.003+filament*.003)*opacity*6.5,0.0,.64)*vShellWeight*neckFade;
       #include <dithering_fragment>
      `);
    };
@@ -177,7 +182,7 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
      oldUpdate(t,mix,visibility);
      matte.opacity=(.10+.012*(.5+.5*Math.sin(t*.57)))*visibility;
      matte.emissiveIntensity=.28+.10*mix;
-     wireMaterial.opacity=(subject.mobile?.045:.10)*visibility;
+     wireMaterial.opacity=(subject.mobile?.009:.016)*visibility;
    };
    return {headSource:subject.headSource,meshes,placement};
  }finally{clearTimeout(timeout);}
