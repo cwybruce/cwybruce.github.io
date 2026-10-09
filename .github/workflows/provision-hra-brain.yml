@@ -1,0 +1,46 @@
+name: Provision licensed HRA brain GLB for Consciousness OS
+on:
+  push:
+    branches: [master]
+    paths: ['.github/workflows/provision-hra-brain.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and verify HRA Allen human brain atlas v1.4
+        run: |
+          set -euo pipefail
+          TARGET=consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb
+          mkdir -p "$(dirname "$TARGET")"
+          curl --fail --location --retry 3 --max-time 240 \
+            --output "$TARGET.tmp" \
+            https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, struct
+          p=Path('consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb.tmp')
+          b=p.read_bytes()
+          expected='c97d7d0b9ff0baebbdec5566fa7b08d789195ef965e0bd04cf743a8d683882db'
+          assert len(b)==11982812,(len(b),'unexpected size')
+          assert b[:4]==b'glTF' and struct.unpack_from('<I',b,8)[0]==len(b)
+          assert hashlib.sha256(b).hexdigest()==expected,'checksum mismatch'
+          print('LICENSED_HRA_MODEL_OK',len(b),expected)
+          PY
+          mv "$TARGET.tmp" "$TARGET"
+      - name: Commit verified binary for GitHub Pages
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add consciousness-os/mind-dive/why-cant-i-persist/assets/models/hra-allen-brain-v1.4.glb
+          if git diff --cached --quiet; then
+            echo "HRA model unchanged"
+          else
+            git commit -m "assets: publish CC BY 4.0 HRA Allen brain GLB for 3D Mind Dive"
+            git push origin HEAD:master
+          fi
