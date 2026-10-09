@@ -1,0 +1,148 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>为什么我总坚持不了？ · Mind Dive</title><link rel="stylesheet" href="../../styles.css"><link rel="stylesheet" href="./mind-dive.css"><link rel="stylesheet" href="./v4-cockpit.css"></head><body>
+<main class="mind-shell">
+  <nav class="mind-nav"><a href="../../result/">← EXIT MIND</a><span>CONSCIOUSNESS OS / MIND DIVE 001</span><span id="system-status">● SYSTEM ONLINE</span></nav>
+  <section id="stage" class="stage v4-cockpit" data-v4-version="4" aria-label="意识系统沉浸式解密">
+    <canvas id="neural" width="1280" height="720" aria-hidden="true"></canvas>
+    <canvas id="brain-webgl" width="1280" height="720" aria-label="真实 HRA 解剖大脑 WebGL 三维场景"></canvas>
+    <span id="render-mode-status" class="render-mode-status" role="status" aria-live="polite">3D 正在载入…</span>
+    <img id="anatomical-texture" class="anatomical-texture" alt="" aria-hidden="true" src="./assets/brain-cortex-scan.webp" decoding="async">
+    <img id="face-scan-texture" class="face-scan-texture" alt="" aria-hidden="true" src="./assets/face-scan-relief.webp" decoding="async">
+    <div class="stage-grid" aria-hidden="true"></div>
+    <div class="scan" id="scan" aria-hidden="true"></div>
+    <div class="brain-gate" id="brain-gate" aria-hidden="true">
+      <svg viewBox="0 0 400 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="skull-gradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5ee7ff"/><stop offset=".5" stop-color="#ff4fa5"/><stop offset="1" stop-color="#9b67ff"/></linearGradient>
+          <filter id="skull-glow"><feGaussianBlur stdDeviation="3" result="h"/><feMerge><feMergeNode in="h"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <path class="skull" d="M164 34 C97 52 63 110 63 182 C63 235 84 273 117 303 L127 387 L258 387 L264 340 C268 315 279 303 305 294 C341 281 354 258 357 229 L383 224 Q396 219 384 201 L357 168 C357 88 302 31 226 27 C202 24 183 28 164 34Z" stroke="url(#skull-gradient)" stroke-width="2"/>
+        <path class="cortex" d="M119 153 C119 101 161 73 213 79 C253 59 304 100 310 132 C347 165 300 204 278 211 C232 240 195 215 157 224 C112 215 102 186 119 153Z"/>
+        <g class="gyri"><path d="M153 109 C134 141 179 146 160 165 C140 184 179 202 201 185"/><path d="M207 85 C192 121 235 125 220 160 C204 188 247 198 270 169"/><path d="M272 103 C252 121 292 145 275 162 C252 190 307 188 305 161"/><path d="M140 183 C171 163 196 215 224 198"/><path d="M200 137 C183 155 207 171 195 192"/></g>
+        <g class="neural-markers"><circle cx="161" cy="164" r="5"/><circle cx="221" cy="158" r="5"/><circle cx="272" cy="162" r="4"/><circle cx="205" cy="203" r="4"/><path d="M161 164L221 158L272 162M221 158L205 203L161 164"/></g>
+        <path class="spinal" d="M202 229 C221 254 220 311 213 384"/>
+      </svg>
+      <span class="brain-gate-label">INNER BRAIN / NEURAL GATE</span>
+    </div>
+    <div class="neural-aperture" id="neural-aperture" aria-hidden="true">
+      <i class="lens-tick north"></i><i class="lens-tick south"></i>
+      <i class="lens-tick west"></i><i class="lens-tick east"></i>
+      <div class="lens-center"></div>
+    </div>
+    <div class="journey-console" aria-hidden="true">
+      <span id="journey-caption">INITIALIZING / 进入意识层</span>
+      <span id="depth-readout">DEPTH 092 / 0.65x</span>
+    </div>
+
+    <div id="v4-system-strap" class="v4-top-network" aria-hidden="true"><span>SUBJECT H.01 &nbsp;|&nbsp; REAL-TIME NEURAL MAPPING</span><i></i></div>
+    <div class="v4-route-kicker">REWIRING <span>/ 正在重塑神经路径</span></div>
+    <header class="stage-header check-text">
+      <div><b>CONSCIOUSNESS OS</b><span> / LIVE INNER TRACE</span></div>
+      <div id="time-label">0.0s / 36s</div>
+    </header>
+
+    <aside class="hud left-hud v4-hud-frame">
+      <div class="hud-title">STATE SIGNALS <span>示意</span></div>
+      <div class="metric"><label>THREAT</label><div class="metric-track"><i id="m-threat"></i></div><b id="v-threat">00</b></div>
+      <div class="metric"><label>FRICTION</label><div class="metric-track"><i id="m-friction"></i></div><b id="v-friction">00</b></div>
+      <div class="metric"><label>REWARD BIAS</label><div class="metric-track"><i id="m-reward"></i></div><b id="v-reward">00</b></div>
+      <div class="metric"><label>OBSERVER</label><div class="metric-track cyan"><i id="m-observer"></i></div><b id="v-observer">00</b></div>
+      <div class="metric"><label>AGENCY</label><div class="metric-track cyan"><i id="m-agency"></i></div><b id="v-agency">00</b></div>
+      <div class="hud-subtitle">PROFILE</div>
+      <div class="profile-line"><span>CURRENT</span><b id="profile-mode">RATIONAL</b></div>
+      <div class="profile-line"><span>FALLBACK</span><b id="fallback-mode">EGO</b></div>
+      <p class="tiny">状态数据仅为教育叙事示意，不代表脑电、fMRI 或医学结论。</p>
+      <div class="v4-mental-profile">
+        <div id="v4-head-scan" class="v4-mini-head" aria-label="微缩脑内扫描示意">
+          <svg viewBox="0 0 138 160" role="img" aria-label="人体头部扫描示意"><defs><linearGradient id="mini-skull-1" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#8bb8fe" stop-opacity=".78"/><stop offset="1" stop-color="#18648a" stop-opacity=".2"/></linearGradient></defs>
+            <path d="M56 11C22 18 13 47 21 73L32 93L33 112L50 123L52 153L92 153L93 122C105 117 110 103 109 89L124 81C128 76 118 73 114 63C112 22 86 7 56 11Z" fill="#102446" fill-opacity=".32" stroke="url(#mini-skull-1)" stroke-width="2"/>
+            <path d="M36 34C48 17 83 17 94 38C110 47 100 72 84 74C70 84 58 72 45 79C21 68 22 50 36 34Z" fill="#295dac" fill-opacity=".21" stroke="#9ce7ff" stroke-width="1.3"/>
+            <g stroke="#5acdfa" stroke-width=".9" opacity=".7" fill="none"><path d="M43 27C55 43 42 59 58 71M60 26C71 41 60 56 72 69M83 31C68 42 98 55 84 68M32 54C51 50 62 70 85 54M30 63C53 79 65 48 97 60M58 78C57 94 67 114 69 154"/></g>
+            <path d="M21 76H113M73 12V152" stroke="#3be2ff" stroke-opacity=".36" stroke-width=".7"/>
+            <circle cx="63" cy="59" r="9" fill="#ff48b9" fill-opacity=".55"/><circle cx="63" cy="59" r="3" fill="#fff"/>
+          </svg>
+          <span class="v4-mini-reticle">+</span>
+        </div>
+        <div class="v4-region-legend" aria-label="脑区映射图例">
+          <div><i></i>DEFAULT MODE</div><div><i></i>SALIENCE</div><div><i></i>EXECUTIVE</div><div><i></i>REWARD</div><div><i></i>AMYGDALA</div><div><i></i>HIPPOCAMPUS</div><div><i></i>STRIATUM</div><div><i></i>THALAMUS</div><div><i></i>CEREBELLUM</div>
+        </div>
+      </div>
+      <div class="hud-subtitle v4-activity-heading">NEURAL ACTIVITY</div>
+      <div class="v4-activity-block"><svg id="v4-activity-graph" viewBox="0 0 222 108" role="img" aria-label="模拟脑活动频段波形"><defs><pattern id="wave-grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#1d465f" stroke-opacity=".55" stroke-width=".6"/></pattern></defs><rect width="222" height="108" fill="url(#wave-grid)"/><g id="v4-waves" fill="none"></g><path id="v4-wave-needle" d="M150 0V108" stroke="#ff4cbd" stroke-width="1.2"/></svg>
+      <div class="v4-frequencies"><div><span>ALPHA</span><b id="v4-alpha">0.42</b></div><div><span>BETA</span><b id="v4-beta">0.78</b></div><div><span>THETA</span><b id="v4-theta">0.31</b></div><div><span>GAMMA</span><b id="v4-gamma">0.56</b></div><div><span>SYNC</span><b id="v4-sync">0.63</b></div></div></div>
+    </aside>
+
+    <div id="v4-region-callouts" class="v4-callouts" aria-label="大脑功能区域示意标注">
+      <div class="v4-callout v4-front" data-region="pfc"><i></i><b>前额叶皮层</b><small>决策与自我控制</small><svg viewBox="0 0 100 14" preserveAspectRatio="none"><path data-wave="pfc"/></svg></div>
+      <div class="v4-callout v4-amygdala" data-region="amygdala"><i></i><b>杏仁核</b><small>情绪与威胁检测</small><svg viewBox="0 0 100 14" preserveAspectRatio="none"><path data-wave="amygdala"/></svg></div>
+      <div class="v4-callout v4-striatum" data-region="striatum"><i></i><b>纹状体</b><small>奖赏与习惯回路</small><svg viewBox="0 0 100 14" preserveAspectRatio="none"><path data-wave="striatum"/></svg></div>
+      <div class="v4-callout v4-parietal" data-region="parietal"><i></i><b>顶叶皮层</b><small>注意与身体映射</small><svg viewBox="0 0 100 14" preserveAspectRatio="none"><path data-wave="parietal"/></svg></div>
+      <div class="v4-callout v4-hippocampus" data-region="hippocampus"><i></i><b>海马体</b><small>记忆与情境整合</small><svg viewBox="0 0 100 14" preserveAspectRatio="none"><path data-wave="hippocampus"/></svg></div>
+      <div class="v4-callout v4-insula" data-region="insula"><i></i><b>岛叶皮层</b><small>内感受与动机</small><svg viewBox="0 0 100 14" preserveAspectRatio="none"><path data-wave="insula"/></svg></div>
+    </div>
+    <section class="mind-core" id="mind-core">
+      <div class="core-title check-text"><span class="eyebrow">QUESTION / 人生问题</span><h1>为什么我总坚持不了？</h1></div>
+      <svg id="graph" viewBox="0 0 760 420" role="img" aria-label="触发到新回路的机制图">
+        <defs><filter id="glow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+        <g class="wires" fill="none">
+          <path id="p1" d="M82 214 C142 214 162 132 226 132"/>
+          <path id="p2" d="M280 132 C340 132 340 214 394 214"/>
+          <path id="p3" d="M448 214 C505 214 505 132 566 132"/>
+          <path id="p4" d="M620 132 C684 132 688 214 730 214"/>
+          <path id="p5" d="M394 245 C394 305 330 325 278 325"/>
+          <path id="p6" d="M330 325 C390 325 432 325 486 325"/>
+          <path id="p7" d="M538 325 C596 325 646 325 705 325"/>
+        </g>
+        <g id="packets" aria-hidden="true"></g>
+        <g class="nodes">
+          <g class="node" data-node="trigger" transform="translate(35 184)"><rect width="94" height="60" rx="9"/><text x="47" y="26">现实触发</text><text x="47" y="45" class="en">TRIGGER</text></g>
+          <g class="node" data-node="meaning" transform="translate(200 102)"><rect width="108" height="60" rx="9"/><text x="54" y="26">自动解释</text><text x="54" y="45" class="en">MEANING</text></g>
+          <g class="node" data-node="reward" transform="translate(366 184)"><rect width="108" height="60" rx="9"/><text x="54" y="26">即时奖励</text><text x="54" y="45" class="en">REWARD</text></g>
+          <g class="node" data-node="action" transform="translate(540 102)"><rect width="108" height="60" rx="9"/><text x="54" y="26">行为选择</text><text x="54" y="45" class="en">ACTION</text></g>
+          <g class="node" data-node="observer" transform="translate(226 295)"><rect width="108" height="60" rx="9"/><text x="54" y="26">观察者</text><text x="54" y="45" class="en">OBSERVER</text></g>
+          <g class="node" data-node="intervention" transform="translate(470 295)"><rect width="108" height="60" rx="9"/><text x="54" y="26">最小干预</text><text x="54" y="45" class="en">INTERVENE</text></g>
+          <g class="node" data-node="new-loop" transform="translate(666 295)"><rect width="88" height="60" rx="9"/><text x="44" y="26">新回路</text><text x="44" y="45" class="en">NEW LOOP</text></g>
+        </g>
+      </svg>
+      <div class="phase-copy check-text" aria-label="第5阶段：观察者上线将揭示新的行为选择"><div id="v4-phase-marker"><span id="phase-kicker">PHASE 01 / 07</span></div><h2 id="headline">现实触发</h2><p id="subline">“今天太累了，明天再开始。”</p></div>
+    </section>
+
+    <aside class="hud right-hud v4-hud-frame">
+      <div class="hud-title">LOOP STRENGTH</div>
+      <div class="loop-meter old"><div><span>OLD LOOP</span><b id="old-loop">100%</b></div><div class="loop-track"><i id="old-loop-bar"></i></div></div>
+      <div class="loop-meter new"><div><span>NEW LOOP</span><b id="new-loop">0%</b></div><div class="loop-track"><i id="new-loop-bar"></i></div></div>
+      <div class="hud-subtitle">SCENE MAP</div>
+      <div class="v4-scene-composite"><div id="scene-map" class="scene-map">
+        <button data-time="1">01 现实触发</button><button data-time="6">02 自动解释</button><button data-time="11">03 即时奖励</button><button data-time="16">04 旧回路</button><button data-time="22">05 观察者</button><button data-time="27">06 最小干预</button><button data-time="32">07 新回路</button>
+      </div><div id="v4-slice-stack" class="v4-slice-stack" aria-label="七阶段大脑断层层叠示意"></div></div>
+      <div class="hud-subtitle v4-scan-title">BRAIN SCAN <span>· LIVE</span> <small>FREQ 0.5 - 40 Hz</small></div>
+      <div id="v4-brain-scan" class="v4-brain-scans" aria-label="三视图的示意脑扫描">
+        <div class="v4-scan-thumb" data-orientation="coronal"><svg viewBox="0 0 100 132"><ellipse cx="50" cy="60" rx="32" ry="48" fill="#0b2346" stroke="#66bfe9" stroke-width="2"/><path d="M50 14Q34 24 35 45T36 91M50 14Q66 24 65 45T64 91M18 50Q31 48 39 53M62 53Q77 46 82 53M29 80Q48 96 71 80" stroke="#a8deff" fill="none" stroke-width="1.4"/><ellipse cx="50" cy="70" rx="11" ry="13" fill="#b335a5" fill-opacity=".4"/><circle cx="50" cy="76" r="4" fill="#ff63cd"/></svg></div>
+        <div class="v4-scan-thumb" data-orientation="sagittal"><svg viewBox="0 0 100 132"><path d="M24 27Q44 4 68 26Q83 37 82 52L90 61Q93 65 85 67Q82 85 69 86L64 120H44L43 94Q23 82 18 63Q12 43 24 27Z" fill="#102348" stroke="#a7cfff" stroke-width="2"/><path d="M27 41Q53 17 71 47Q79 63 59 70Q47 83 31 63Z" fill="#224c85" stroke="#74deff" stroke-width="1.6"/><path d="M43 36Q56 51 60 67M34 56Q44 48 66 57" fill="none" stroke="#b68ffb"/><circle cx="56" cy="55" r="6" fill="#ff69cc"/></svg></div>
+        <div class="v4-scan-thumb" data-orientation="axial"><svg viewBox="0 0 100 132"><ellipse cx="50" cy="61" rx="34" ry="46" fill="#0d2448" stroke="#8dcfff" stroke-width="2"/><path d="M49 18Q38 38 46 63T50 103M51 18Q64 37 54 64T50 103M20 51Q35 39 42 61M80 51Q66 40 58 61M27 76Q38 67 50 83T73 76" fill="none" stroke="#b1c3ff" stroke-width="1.4"/><circle cx="50" cy="62" r="5" fill="#fa60c2"/></svg></div>
+      </div><div class="v4-spectrum"><span>L</span><i></i><span>R</span></div>
+    </aside>
+
+    <div id="narration-caption" class="narration-caption check-text" aria-label="同步旁白字幕">
+      <span class="caption-tag">VOICE / 旁白</span>
+      <span id="narration-text">为什么你总坚持不了？我们先钻进这个念头。</span>
+    </div>
+
+    <section class="terminal v4-hud-frame">
+      <div class="terminal-head"><span>&gt; INNER_TRACE.log</span><span id="phase-name">TRIGGER</span><span class="v4-terminal-version">OBSERVER v1.2.4 &nbsp; SESSION #7843.26.11</span></div>
+      <div id="trace-lines" class="trace-lines check-text"><div>INPUT  今天很累</div><div>SIGNAL  task_friction ↑</div><div>SYSTEM  searching default path...</div></div>
+      <div id="v4-log-status" class="v4-terminal-status" aria-label="系统运行进度"><span>PERCEIVE <i></i></span><span>UNDERSTAND <i></i></span><span>REWIRE <i></i></span><span>BECOME <i></i></span></div>
+    </section>
+    <div class="progress-line"><i id="overall-progress"></i></div>
+  </section>
+
+  <audio id="recorded-narration" preload="none" data-voice-src="" aria-hidden="true"></audio>
+  <audio id="recorded-score" preload="metadata" data-score-src="./assets/score-v22.mp3" aria-hidden="true"></audio>
+
+  <section class="controls" aria-label="播放控制"><button id="play" type="button">开始有声探索</button><button id="restart" type="button">重播</button><button id="voice-toggle" type="button" aria-pressed="true" title="切换中文旁白和氛围音">声音：开</button><label class="music-control" for="music-volume">配乐 <input id="music-volume" type="range" min="0" max="100" step="5" value="68" aria-label="背景配乐音量"></label><input id="scrubber" type="range" min="0" max="36" step="0.01" value="0" aria-label="时间轴"><span id="control-time">00:00 / 00:36</span><span id="voice-status" role="status">点击播放，开启中文旁白</span></section>
+
+  <section class="aftercare" id="aftercare">
+    <div><div class="eyebrow">AFTER THE DIVE</div><h2>你已经看见旧程序。下一步是训练新的默认反应。</h2><p>训练不是“知道更多”，而是在真实触发发生时，把观察者和最小行动练成默认路径。</p></div>
+    <form id="waitlist" class="waitlist"><label>训练营内测等待名单（MVP 演示）<input id="contact" name="contact" autocomplete="email" placeholder="邮箱或手机号"></label><button type="submit">留下联系方式</button><p id="waitlist-status">演示版只保存在当前浏览器会话，不会上传服务器。</p></form>
+  </section>
+</main>
+<div style="position:fixed;right:10px;bottom:10px;color:#5de9fd;background:#031325ee;border:1px solid #1e6f95;padding:5px 9px;border-radius:5px;font:11px monospace;z-index:999">V4 PREVIEW · 验收版</div><script type="module" src="./app.mjs"></script></body></html>
