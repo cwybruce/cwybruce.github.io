@@ -33,6 +33,23 @@ export function createNeuralSignals(THREE,{mobile=false}={}){
    }
   }
  }
+ // Fine terminal branches give the fixed narrative bundles a cortical spread.
+ // These are artist-authored paths, not an added anatomical tractography claim.
+ for(const [r,[name,xyz]]of Object.entries(SIGNAL_ANCHORS).filter(([name])=>name!=='spine').entries()){
+  const a=new THREE.Vector3(...xyz),group=['parietal','insula','cerebellum','brainstem'].includes(name)?1:0;
+  for(let i=0;i<(mobile?4:8);i++){
+   const angle=i*2.39996323+r*.71;
+   const b=a.clone().add(new THREE.Vector3(-.16-.22*(.5+.5*Math.sin(angle)),Math.sin(angle)*.48,Math.cos(angle)*.48));
+   const mid=a.clone().lerp(b,.55).add(new THREE.Vector3(-.09,.10*Math.cos(angle),.11*Math.sin(angle)));
+   const curve=new THREE.CatmullRomCurve3([a,mid,b]);let previous=null;
+   for(let j=0;j<20;j++){
+    const progress=j/19,p=curve.getPoint(progress);
+    positions.push(...p.toArray());phases.push((progress+r*.117+i*.021)%1);groups.push(group);
+    if(previous){linePositions.push(...previous,...p.toArray());lineProgress.push(progress,progress);lineGroups.push(group,group);}
+    previous=p.toArray();
+   }
+  }
+ }
  const pointsGeometry=new THREE.BufferGeometry();
  pointsGeometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
  pointsGeometry.setAttribute('aPhase',new THREE.Float32BufferAttribute(phases,1));

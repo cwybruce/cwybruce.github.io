@@ -27,24 +27,24 @@ fragment:`
  void main(){
    vec3 n=normalize(vNormal);
    float facing=abs(dot(n,normalize(vEye)));
-   float fresnel=pow(max(0.0,1.0-facing),4.1);
+   float fresnel=pow(max(0.0,1.0-facing),2.5);
    vec3 key=normalize(vec3(-.48,.72,.85));
    float diffuse=max(0.0,dot(n,key));
-   float specular=pow(max(0.0,dot(n,normalize(key+normalize(vEye)))),38.0);
+   float specular=pow(max(0.0,dot(n,normalize(key+normalize(vEye)))),52.0);
    float pinkLight=pow(max(0.0,dot(n,normalize(vec3(.75,-.25,.45)))),3.0);
    float coreFalloff=exp(-length(vWorld-vec3(-.35,1.30,.15))*1.10);
    // Rounded gyri come from the licensed mesh normals, with dark recesses.
    // Spatial lights stay legible at rest; absolute time moves only their activity.
-   vec3 color=vec3(.003,.008,.025)+vec3(.010,.085,.40)*pow(diffuse,2.0);
-   color+=vec3(.14,.58,2.1)*fresnel;
-   color+=vec3(.38,.95,1.80)*specular*.90;
+   vec3 color=vec3(.002,.006,.020)+vec3(.006,.075,.30)*pow(diffuse,1.7);
+   color+=vec3(.06,.85,3.5)*fresnel;
+   color+=vec3(.55,1.8,3.0)*specular*.90;
    color+=vec3(.85,.008,.28)*pinkLight*(.06+.30*coreFalloff)*(1.0-.35*uRouteMix);
    vec3 focusDelta=vWorld-vec3(-.95,2.15,-.75);
    float pinkFocus=exp(-dot(focusDelta,focusDelta)*1.5)*(1.0-.55*uRouteMix);
-   vec3 rose=vec3(.015,.002,.02)+vec3(.42,.006,.22)*pow(diffuse,2.0)
-     +vec3(1.55,.035,.88)*fresnel+vec3(1.65,.40,1.25)*specular*.90;
-   color=mix(color,rose,pinkFocus*.85);
-   float alpha=clamp(.70+.23*fresnel,.0,.95);
+   vec3 rose=vec3(.007,.002,.018)+vec3(.09,.003,.06)*pow(diffuse,2.0)
+     +vec3(1.8,.05,1.05)*fresnel+vec3(1.8,.55,1.45)*specular*.60;
+   color=mix(color,rose,pinkFocus*.78);
+   float alpha=clamp(.34+.52*fresnel+.09*diffuse,.0,.95);
    gl_FragColor=vec4(color,alpha*uVisibility);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>

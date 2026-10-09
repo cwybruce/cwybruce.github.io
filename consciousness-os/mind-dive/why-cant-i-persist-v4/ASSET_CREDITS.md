@@ -9,7 +9,7 @@
 - **CC BY 4.0 license:** https://creativecommons.org/licenses/by/4.0/
 - **Published v1.4 file SHA-256:** `c97d7d0b9ff0baebbdec5566fa7b08d789195ef965e0bd04cf743a8d683882db`
 - **File size:** 11,982,812 bytes.
-- **Transformation:** Runtime recentering, uniform scale and cranial-vault placement. The refined V4 scene fits the normalized atlas at scale 0.84 and Y +1.30 into the separately aligned head; no triangles or original binary bytes are changed. No procedural fake anatomical mesh is substituted. Cyan/magenta shader colors, artist-created signals, transparent shell and scattering are *our visualization*, not part of the scientific atlas.
+- **Transformation:** Runtime recentering, uniform scale and cranial-vault placement. The refined V4 scene fits the normalized atlas at scale 0.90 and Y +1.30 into the separately aligned head; no triangles or original binary bytes are changed. No procedural fake anatomical mesh is substituted. A colorless nearest-surface depth pass shares the original static mesh geometry; it does not alter atlas bytes. Fixed narrative terminal branches and camera-depth-softened atmospheric points are original code, not measured fibers or downloaded imagery. Cyan/magenta shader colors, artist-created signals, transparent shell and scattering are *our visualization*, not part of the scientific atlas.
 
 **Suggested citation (HRA v1.4):** Schlehlein H., Herr B., Quardokus E., Bueckle A., Börner K. et al. *Human Reference Atlas 3D Reference Object Library*, v1.4, accessed 2026-10-09.
 

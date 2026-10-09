@@ -132,7 +132,7 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
    const clip=new THREE.Plane(new THREE.Vector3(0,1,0),-placement.clipY);
    const matte=new THREE.MeshPhysicalMaterial({color:0x183d64,emissive:0x0a2649,emissiveIntensity:.28,
       roughness:.32,metalness:.12,clearcoat:.4,clearcoatRoughness:.26,transparent:true,opacity:.12,
-      depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[clip]});
+      depthWrite:false,side:THREE.FrontSide,clippingPlanes:[clip]});
    // Camera-dependent Fresnel makes the real anatomical face readable over
    // the illuminated cortex while retaining an X-ray-transparent interior.
    matte.depthTest=false;
@@ -144,16 +144,16 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
      shader.fragmentShader='varying float vShellWeight;varying vec3 vScanWorld;\n'+shader.fragmentShader;
      shader.fragmentShader=shader.fragmentShader.replace(marker,`
       vec3 scanNormal=normalize(normal),scanEye=normalize(vViewPosition);
-      float faceRim=pow(max(0.0,1.0-abs(dot(scanNormal,scanEye))),3.4);
+      float faceRim=pow(max(0.0,1.0-abs(dot(scanNormal,scanEye))),2.0);
       float faceLight=pow(max(0.0,dot(scanNormal,normalize(vec3(-.35,.65,.85)))),2.0);
       float faceSpecular=pow(max(0.0,dot(scanNormal,normalize(scanEye+vec3(-.35,.65,.85)))),32.0);
       float scanEdge=pow(.5+.5*sin(vScanWorld.y*125.0),18.0);
       float filament=pow(.5+.5*sin(vScanWorld.y*39.0+sin(vScanWorld.z*19.0)*3.0+vScanWorld.x*28.0),28.0);
       float neckFade=smoothstep(-2.36,-1.75,vScanWorld.y);
       float faceZone=smoothstep(.35,1.7,vScanWorld.z)*(1.0-smoothstep(1.4,2.25,vScanWorld.y));
-      gl_FragColor.rgb=vec3(.006,.033,.10)+vec3(.10,.48,1.45)*faceRim
-        +vec3(.018,.12,.42)*faceLight*faceZone+vec3(.18,.52,1.0)*faceSpecular*faceZone;
-      gl_FragColor.a=clamp((.035+faceRim*.73+faceLight*faceZone*.15+scanEdge*.003+filament*.003)*opacity*6.5,0.0,.64)*vShellWeight*neckFade;
+      gl_FragColor.rgb=vec3(.025,.09,.23)+vec3(.20,.65,1.50)*faceRim
+        +vec3(.07,.22,.52)*faceLight*faceZone+vec3(.28,.63,.95)*faceSpecular*faceZone;
+      gl_FragColor.a=clamp((.02+.075*faceZone+faceRim*.90*mix(.24,1.0,faceZone)+faceLight*faceZone*.24+scanEdge*.003+filament*.003)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
       #include <dithering_fragment>
      `);
    };

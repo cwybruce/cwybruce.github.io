@@ -12,6 +12,7 @@ import {createNeuralSignals} from './neural-signals.mjs';
 import {cameraPoseAt} from './timeline.mjs';
 import {createSubjectHead,loadCC0Head} from './subject-head.mjs';
 import {createModelScans} from './model-scans.mjs';
+import {createNeuralAtmosphere} from './neural-atmosphere.mjs';
 
 export async function createBrainScene({canvas,modelUrl='./assets/models/hra-allen-brain-v1.4.glb',quality='high'}={}){
  if(!canvas)throw Error('WebGL canvas missing');
@@ -32,7 +33,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
  const source=await loadAnatomicalAtlas({THREE,GLTFLoader,url:modelUrl});
  // Both licensed assets use +Y up and +Z anterior. Fit the brain into the
  // cranial vault, above the facial features; keep the GLB triangles unchanged.
- source.root.scale.setScalar(.84);source.root.position.y=1.30;
+ source.root.scale.setScalar(.90);source.root.position.y=1.30;
  scene.add(source.root);
  const material=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uRouteMix:{value:0},uRegion:{value:0},uVisibility:{value:1}},vertexShader:brainSurfaceShaders.vertex,fragmentShader:brainSurfaceShaders.fragment,side:THREE.FrontSide,transparent:true,depthWrite:true,depthTest:true});
  const zoneIndex={prefrontal:1,hippocampus:2,amygdala:3,striatum:4,parietal:5,temporal:6,insula:7,thalamus:8,cortex:9,cerebellum:10};
@@ -42,8 +43,22 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
   const m=material.clone();m.uniforms.uTime={value:0};m.uniforms.uRouteMix={value:0};m.uniforms.uRegion={value:zoneIndex[object.userData.anatomicalRegion]||0};
   object.material=m;uniforms.push(m.uniforms);
  });
+ // A nearest-surface depth prepass prevents 283 translucent atlas regions from
+ // accumulating pale rear surfaces before the front cortex is composited.
+ // Share the original immutable geometry; no asset triangles are altered.
+ const depthRoot=new THREE.Group();depthRoot.name='Nearest anatomical surface';
+ const depthMaterial=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,depthTest:true,side:THREE.FrontSide});
+ source.root.updateMatrixWorld(true);
+ source.root.traverse(object=>{
+  if(!object.isMesh)return;
+  const depthMesh=new THREE.Mesh(object.geometry,depthMaterial);
+  depthMesh.matrixAutoUpdate=false;depthMesh.matrix.copy(object.matrixWorld);depthMesh.renderOrder=-5;
+  depthRoot.add(depthMesh);
+ });
+ scene.add(depthRoot);
  const signals=createNeuralSignals(THREE,{mobile:quality==='mobile'});scene.add(signals.root);
- signals.root.scale.setScalar(.84);signals.root.position.y=1.30;
+ signals.root.scale.setScalar(.90);signals.root.position.y=1.30;
+ const atmosphere=createNeuralAtmosphere(THREE,{mobile:quality==='mobile'});scene.add(atmosphere.root);
  const volumeSpec=createVolumeShader(quality);
  const volumeUniforms={uTime:{value:0},uRouteMix:{value:0},uCameraLocal:{value:new THREE.Vector3(0,0,5)}};
  const fog=new THREE.Mesh(new THREE.BoxGeometry(4.8,4.6,4.5),new THREE.ShaderMaterial({uniforms:volumeUniforms,vertexShader:volumeSpec.vertexShader,fragmentShader:volumeSpec.fragmentShader,transparent:true,depthWrite:false,depthTest:true,side:THREE.BackSide,blending:THREE.NormalBlending}));
@@ -93,13 +108,14 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
    // DoubleSide anatomy in an interior shot exposes enormous backface triangles.
    const near=Math.max(0,Math.min(1,(pose.radius-3.4)/2.3));
    const exterior=near*near*(3-2*near);
-   source.root.visible=exterior>0;subjectHead.root.visible=exterior>0;
-   const distance=portrait?1.18:1,centerZ=(portrait?.70:.35)*exterior;
+   source.root.visible=exterior>0;subjectHead.root.visible=exterior>0;depthRoot.visible=exterior>0;
+   const distance=portrait?1.26:1,centerZ=(portrait?.25:.35)*exterior;
    const centerX=-.45*(1-exterior),centerY=.45+.80*(1-exterior);
    camera.position.set(pose.position[0]*distance+centerX,pose.position[1]*distance+centerY,pose.position[2]*distance+centerZ);
    camera.lookAt(pose.target[0]+centerX,pose.target[1]+centerY,pose.target[2]+centerZ);
    camera.rotateZ(pose.roll);
    camera.updateMatrixWorld(true);
+   atmosphere.update(pose.time,camera,exterior);
    uniforms.forEach(u=>{u.uTime.value=pose.time;u.uRouteMix.value=mix;u.uVisibility.value=exterior;});
    signals.update(pose.time,mix,camera);subjectHead.update(pose.time,mix,exterior);
    volumeUniforms.uTime.value=pose.time;volumeUniforms.uRouteMix.value=mix;
@@ -113,7 +129,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
  function destroy(){
   disposed=true;canvas.removeEventListener('webglcontextlost',onLost);
   scene.traverse(o=>{o.geometry?.dispose(); if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});
-  subjectHead.dispose();signals.dispose();composer?.dispose();renderer.dispose();
+  subjectHead.dispose();signals.dispose();atmosphere.dispose();composer?.dispose();renderer.dispose();
  }
  function getProjectedRegions(){
   signals.root.updateMatrixWorld(true);
