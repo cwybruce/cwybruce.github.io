@@ -4,9 +4,9 @@ export const SHOTS=Object.freeze([
  {time:5,radius:6.4,azimuth:1.38,elevation:0.22,look:[-0.12,0.12,0],roll:0.015},
  {time:10,radius:2.0,azimuth:1.88,elevation:0.16,look:[0.24,-0.05,0],roll:0.05},
  {time:15,radius:1.15,azimuth:2.5,elevation:0.05,look:[0.05,-0.1,0],roll:0.12},
- {time:21,radius:9.4,azimuth:4.45,elevation:0.08,look:[0,0.05,0],roll:0.0},
- {time:26,radius:9.8,azimuth:4.56,elevation:-0.03,look:[0,0.1,0],roll:-0.05},
- {time:31,radius:9.8,azimuth:4.72,elevation:0.07,look:[0,0,0],roll:-0.025},
+ {time:21,radius:8.6,azimuth:4.70,elevation:0.08,look:[0,0.05,0],roll:0.0},
+ {time:26,radius:8.9,azimuth:4.74,elevation:-0.03,look:[0,0.1,0],roll:-0.05},
+ {time:31,radius:9.2,azimuth:4.72,elevation:0.07,look:[0,0,0],roll:-0.025},
  {time:36,radius:10.2,azimuth:4.92,elevation:0.13,look:[0,0,0],roll:0}
 ]);
 export const PHASES=Object.freeze([

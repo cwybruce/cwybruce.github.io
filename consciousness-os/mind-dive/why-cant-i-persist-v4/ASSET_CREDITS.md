@@ -9,7 +9,7 @@
 - **CC BY 4.0 license:** https://creativecommons.org/licenses/by/4.0/
 - **Published v1.4 file SHA-256:** `c97d7d0b9ff0baebbdec5566fa7b08d789195ef965e0bd04cf743a8d683882db`
 - **File size:** 11,982,812 bytes.
-- **Transformation:** Runtime recentering, uniform scale and cranial-vault placement. The V4 scene fits the normalized atlas at scale 0.80 and Y +0.90 into the separately aligned head; no triangles or original binary bytes are changed. No procedural fake anatomical mesh is substituted. Cyan/magenta shader colors, artist-created signals, transparent shell and scattering are *our visualization*, not part of the scientific atlas.
+- **Transformation:** Runtime recentering, uniform scale and cranial-vault placement. The refined V4 scene fits the normalized atlas at scale 0.84 and Y +1.30 into the separately aligned head; no triangles or original binary bytes are changed. No procedural fake anatomical mesh is substituted. Cyan/magenta shader colors, artist-created signals, transparent shell and scattering are *our visualization*, not part of the scientific atlas.
 
 **Suggested citation (HRA v1.4):** Schlehlein H., Herr B., Quardokus E., Bueckle A., Börner K. et al. *Human Reference Atlas 3D Reference Object Library*, v1.4, accessed 2026-10-09.
 
@@ -28,6 +28,7 @@ This is a story visualization of habit loops, **not actual EEG, fMRI, an individ
 - **Downloaded GLB checksum (SHA-256):** `7135e03b6259e970458deff3e0458610914d7c35164cae12611101361e4a5749`
 - **File size:** 4,994,640 bytes.
 - **Transformation:** The single head/body mesh is loaded into Three.js and spatially cropped at the upper neck with a transparent material. The original binary is retained. The HRA anatomical brain is a separate reference model inside the head; alignment is a visual illustration, **not registered medical anatomy**.
+- **Derived render layers:** Detached eye/oral components receive a lower transparency weight; thin face/neck lines are sampled from the CC0 mesh topology. Small HUD views and cutaways are rendered from the loaded HRA/CC0 models in a temporary WebGL context. These are model-based illustrations, not measured MRI or reference-image crops.
 - **Fallback:** When the CC0 asset cannot be downloaded, a deterministic procedural head and neck mesh remains available to avoid a blank scene. Do not label procedural fallback as a scanned head.
 
 Verified source page on 2026-10-09: the Innerscene listing explicitly dedicates this model to CC0 and permits modification and redistribution, including commercial use. The whole-body bounding box includes forward feet; V4 corrects a 1.415 normalized-unit sagittal offset to align the cranium with the brain. This is an artist's illustrative alignment, not patient-specific medical registration.

@@ -79,7 +79,7 @@ export function createSubjectHead(THREE,{mobile=false}={}){
  const root=new THREE.Group();root.add(mesh);
  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.49,.73,2.25,32,8),new THREE.MeshBasicMaterial({color:0x316caa,transparent:true,opacity:.065,side:THREE.DoubleSide,depthWrite:false}));
  neck.position.set(0,-2.58,-.1);root.add(neck);
- return {root,mesh,update(t,mix,visibility=1){uniforms.uTime.value=t;uniforms.uCyan.value=mix;uniforms.uVisibility.value=visibility;neck.material.opacity=.065*visibility;},dispose(){root.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});}};
+ return {root,mesh,mobile,update(t,mix,visibility=1){uniforms.uTime.value=t;uniforms.uCyan.value=mix;uniforms.uVisibility.value=visibility;neck.material.opacity=.065*visibility;},dispose(){root.traverse(o=>{o.geometry?.dispose();o.material?.dispose();});}};
 }
 
 /** CC0 MakeHuman whole-body asset is cut by a world-space clipping plane,
@@ -92,6 +92,26 @@ export function getHeadPlacement({height,centerX=0,centerZ=0,topY=0}){
   // The whole-body bounds include forward feet. Its sagittal center is 1.415
   // normalized units in front of the cranium; register the skull, not the body.
   return {scale,topY:3.15,clipY:-2.36,x:-centerX*scale+.11,y:3.15-topY*scale,z:-centerZ*scale+1.635};
+}
+// Keep the licensed geometry intact. Detached eye/oral components receive a
+// lower scan weight, instead of lighting them as bright floating solid spheres.
+function shellWeights(THREE,mesh){
+ const geometry=mesh.geometry,count=geometry.attributes.position.count;
+ const parent=Int32Array.from({length:count},(_,i)=>i);
+ const find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
+ const index=geometry.index?.array;
+ if(index)for(let i=0;i<index.length;i+=3){parent[find(index[i+1])]=find(index[i]);parent[find(index[i+2])]=find(index[i]);}
+ const components=new Map(),point=new THREE.Vector3();
+ for(let i=0;i<count;i++){const key=find(i);let c=components.get(key);if(!c){c={count:0,box:new THREE.Box3()};components.set(key,c);}c.count++;mesh.getVertexPosition(i,point).applyMatrix4(mesh.matrixWorld);c.box.expandByPoint(point);}
+ const weights=new Float32Array(count).fill(1);
+ for(const c of components.values()){
+  const size=c.box.getSize(new THREE.Vector3()),center=c.box.getCenter(new THREE.Vector3());
+  const eye=c.count>300&&c.count<3000&&size.x<.9&&size.y<.9&&center.y>.5&&center.y<1.3&&center.z>1.2;
+  const oral=c.count>300&&c.count<4000&&center.y<.5&&center.y>-1.5&&size.x<2&&c.box.max.z>1.9;
+  c.weight=eye?.025:oral?.08:1;
+ }
+ for(let i=0;i<count;i++)weights[i]=components.get(find(i)).weight;
+ return weights;
 }
 export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models/cc0-human-base.glb',timeoutMs=10000}={}){
  let timeout;
@@ -110,8 +130,8 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
    gltf.scene.position.set(placement.x,placement.y,placement.z);
    gltf.scene.updateMatrixWorld(true);
    const clip=new THREE.Plane(new THREE.Vector3(0,1,0),-placement.clipY);
-   const matte=new THREE.MeshPhysicalMaterial({color:0x51bce9,emissive:0x165387,emissiveIntensity:.72,
-      roughness:.19,metalness:.30,clearcoat:.96,clearcoatRoughness:.13,transparent:true,opacity:.12,
+   const matte=new THREE.MeshPhysicalMaterial({color:0x183d64,emissive:0x0a2649,emissiveIntensity:.28,
+      roughness:.32,metalness:.12,clearcoat:.4,clearcoatRoughness:.26,transparent:true,opacity:.12,
       depthWrite:false,side:THREE.DoubleSide,clippingPlanes:[clip]});
    // Camera-dependent Fresnel makes the real anatomical face readable over
    // the illuminated cortex while retaining an X-ray-transparent interior.
@@ -119,22 +139,33 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
    matte.onBeforeCompile=(shader)=>{
      const marker='#include <dithering_fragment>';
      if(!shader.fragmentShader.includes(marker))throw Error('Unsupported Three.js PBR shader');
+     shader.vertexShader='attribute float aShellWeight;varying float vShellWeight;varying vec3 vScanWorld;\n'+shader.vertexShader;
+     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\nvShellWeight=aShellWeight;').replace('#include <project_vertex>','#include <project_vertex>\nvScanWorld=(modelMatrix*vec4(transformed,1.0)).xyz;');
+     shader.fragmentShader='varying float vShellWeight;varying vec3 vScanWorld;\n'+shader.fragmentShader;
      shader.fragmentShader=shader.fragmentShader.replace(marker,`
-      float faceRim=pow(1.0-abs(dot(normalize(normal),normalize(vViewPosition))),2.3);
-      float scanEdge=.5+.5*sin(vViewPosition.y*56.0);
-      gl_FragColor.rgb+=vec3(.08,.56,.95)*faceRim*1.65+vec3(.015,.09,.13)*scanEdge*faceRim;
-      gl_FragColor.a=clamp((.06+faceRim*.90)*opacity*6.5,0.0,.86);
+      float faceRim=pow(max(0.0,1.0-abs(dot(normalize(normal),normalize(vViewPosition)))),5.8);
+      float scanEdge=pow(.5+.5*sin(vScanWorld.y*125.0),18.0);
+      float filament=pow(.5+.5*sin(vScanWorld.y*39.0+sin(vScanWorld.z*19.0)*3.0+vScanWorld.x*28.0),28.0);
+      float neckFade=smoothstep(-2.36,-1.75,vScanWorld.y);
+      gl_FragColor.rgb=vec3(.018,.07,.15)+vec3(.18,.70,1.18)*faceRim+vec3(.05,.19,.34)*(scanEdge*.18+filament*.25);
+      gl_FragColor.a=clamp((.018+faceRim*.46+scanEdge*.012+filament*.015)*opacity*6.5,0.0,.42)*vShellWeight*neckFade;
       #include <dithering_fragment>
      `);
    };
-   let meshes=0,vertices=0;
+   let meshes=0,vertices=0;const scanLines=[];
    gltf.scene.traverse(obj=>{
      if(!obj.isMesh)return;
+     obj.geometry.setAttribute('aShellWeight',new THREE.Float32BufferAttribute(shellWeights(THREE,obj),1));
+     const ix=obj.geometry.index?.array,weights=obj.geometry.getAttribute('aShellWeight');
+     if(ix)for(let i=0;i<ix.length;i+=9){const triangle=[ix[i],ix[i+1],ix[i+2]];if(triangle.some(k=>k===undefined||weights.getX(k)<.5))continue;const points=triangle.map(k=>obj.getVertexPosition(k,new THREE.Vector3()).applyMatrix4(obj.matrixWorld));if(points.some(v=>v.y<placement.clipY||v.y>1.85))continue;for(const [a,b]of [[0,1],[1,2],[2,0]])scanLines.push(...points[a].toArray(),...points[b].toArray());}
      obj.material=matte;obj.renderOrder=10;meshes++;vertices+=obj.geometry.attributes.position.count;
      obj.frustumCulled=false;
    });
    if(!meshes){matte.dispose();throw Error('No CC0 head mesh');}
    subject.root.add(gltf.scene);
+   const wireGeometry=new THREE.BufferGeometry();wireGeometry.setAttribute('position',new THREE.Float32BufferAttribute(scanLines,3));
+   const wireMaterial=new THREE.LineBasicMaterial({color:0x2878a7,transparent:true,opacity:.20,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending});
+   const wire=new THREE.LineSegments(wireGeometry,wireMaterial);wire.name='CC0 face and neck scan topology';wire.renderOrder=11;subject.root.add(wire);
    subject.mesh.visible=false;
    subject.cc0Model=gltf.scene;
    subject.cc0Material=matte;
@@ -144,8 +175,9 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
    const oldUpdate=subject.update;
    subject.update=(t,mix,visibility=1)=>{
      oldUpdate(t,mix,visibility);
-     matte.opacity=(.095+.033*(.5+.5*Math.sin(t*.57)))*visibility;
-     matte.emissiveIntensity=.65+.23*mix;
+     matte.opacity=(.10+.012*(.5+.5*Math.sin(t*.57)))*visibility;
+     matte.emissiveIntensity=.28+.10*mix;
+     wireMaterial.opacity=(subject.mobile?.045:.10)*visibility;
    };
    return {headSource:subject.headSource,meshes,placement};
  }finally{clearTimeout(timeout);}

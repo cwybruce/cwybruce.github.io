@@ -120,11 +120,44 @@ body{background:#02050c}
 .render-mode .mind-nav{display:none}
 .asset-credit{font-size:11px}
 .mobile-hud{display:none}
+/* Details measured against the saved primary target; all imagery comes from
+   the loaded models or reusable CSS/SVG primitives. */
+.v4-cockpit .hud.v4-hud-frame{clip-path:none;border-color:#17677b;background:rgba(2,9,17,.90)}
+.v4-cockpit .hud.v4-hud-frame:before{content:"";position:absolute;inset:-1px;pointer-events:none;background:linear-gradient(#4cefff,#4cefff) left top/23px 2px no-repeat,linear-gradient(#4cefff,#4cefff) left top/2px 15px no-repeat,linear-gradient(#4cefff,#4cefff) right top/23px 2px no-repeat,linear-gradient(#4cefff,#4cefff) right top/2px 15px no-repeat,linear-gradient(#4cefff,#4cefff) left bottom/23px 2px no-repeat,linear-gradient(#4cefff,#4cefff) left bottom/2px 15px no-repeat,linear-gradient(#4cefff,#4cefff) right bottom/23px 2px no-repeat,linear-gradient(#4cefff,#4cefff) right bottom/2px 15px no-repeat;filter:drop-shadow(0 0 4px #17cfe8)}
+.v4-cockpit .hud.v4-hud-frame:after{content:"";position:absolute;inset:5px;border:1px solid #164150;pointer-events:none;clip-path:polygon(0 0,17% 0,17% 1%,83% 1%,83% 0,100% 0,100% 100%,83% 100%,83% 99%,17% 99%,17% 100%,0 100%)}
+.v4-cockpit .hud-title,.v4-cockpit .hud-subtitle{font-weight:500}
+.v4-cockpit .v4-activity-block{height:14.2%}
+.v4-cockpit .v4-frequencies{font-size:.65cqw}
+.model-scan{position:relative}
+.model-scan>svg{display:none!important}
+.model-scan-image{display:block;width:100%;height:100%;object-fit:contain;filter:contrast(1.18) brightness(1.1)}
+.v4-mini-head.model-scan{background:#020812}
+.v4-mini-head.model-scan:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 48%,#e94dad99 49%,transparent 50%),linear-gradient(0deg,transparent 55%,#e94dad99 56%,transparent 57%)}
+.v4-slice.model-slice{height:29%;border:0;border-radius:0;transform:rotateX(42deg);background-color:transparent;background-size:100% 100%;background-repeat:no-repeat;box-shadow:none;opacity:.56;filter:brightness(.8) saturate(.8)}
+.v4-slice.model-slice:before,.v4-slice.model-slice:after{display:none}
+.v4-slice.model-slice.active{opacity:1;filter:grayscale(1) sepia(1) saturate(3) hue-rotate(270deg) brightness(1.3) drop-shadow(0 0 5px #fc50bd)}
+.v4-cockpit .mind-core .phase-copy p{max-width:80%;margin-left:auto;margin-right:auto;line-height:1.65;text-wrap:balance}
+.v4-callout{border-radius:.25cqw;background:rgba(2,11,22,.88)}
+.v4-callout.is-active{box-shadow:0 0 9px #e456b833,inset 0 0 8px #823d8722}
+.tracked-regions .v4-callout{border-color:var(--region-color,#218da7)}
+.tracked-regions .v4-callout i,.tracked-regions .v4-callout:after{display:none}
+#v4-region-leaders{position:absolute;inset:0;width:100%;height:100%;z-index:6;pointer-events:none;overflow:hidden}
+#v4-region-leaders path{stroke:currentColor;stroke-width:1.1;fill:none;opacity:.74}
+#v4-region-leaders circle{stroke:currentColor;stroke-width:1.5;fill:currentColor;fill-opacity:.16;filter:drop-shadow(0 0 4px currentColor)}
+#v4-orbital-scan{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;opacity:.43}
+#v4-orbital-scan path{stroke:#4eb5d6;stroke-width:.5;fill:none}
+#v4-orbital-scan circle{stroke-width:.45}
+#v4-orbital-scan .orbit-dot{fill:#42c5ff;filter:drop-shadow(0 0 3px #4ebeff)}
+#v4-orbital-scan text{font:6px ui-monospace,monospace;fill:#57b6d9}
+.v4-cockpit .narration-caption:before,.v4-cockpit .narration-caption:after{content:"";position:absolute;top:50%;width:.8%;height:1px;background:#23e8fb;box-shadow:0 0 6px #21e6ff}
+.v4-cockpit .narration-caption:before{left:0}.v4-cockpit .narration-caption:after{right:0}
 @media(max-width:860px){
   .mind-shell{padding:8px 7px 42px}
   .mind-nav{font-size:9px}
   .stage.v4-cockpit{height:min(88svh,760px);aspect-ratio:auto;container-type:inline-size}
   .v4-cockpit .hud,.v4-cockpit .v4-top-network,.v4-cockpit .v4-callouts,.v4-cockpit .v4-route-kicker{display:none}
+  #v4-region-leaders{display:none!important}
+  .v4-cockpit .mind-core .phase-copy p{max-width:100%;line-height:1.5}
   .v4-cockpit .stage-header{font-size:10px;top:2%}
   .v4-cockpit #brain-webgl{height:100%;width:100%}
   .v4-cockpit .journey-console{left:5%;right:5%;top:7%;font-size:9px}

@@ -77,7 +77,6 @@ function renderAt(t){
   document.querySelector('#overall-progress').style.width=`${vm.overallProgress*100}%`;
   document.querySelector('#profile-mode').textContent=profile.highlightedMode.toUpperCase();
   document.querySelector('#scan').style.top=`${8+((state.time*9)%84)}%`;
-  updateV4Cockpit(document,{time:state.time,phase:state.phase,observer:vm.metrics.observer,rewardBias:vm.metrics.rewardBias,agency:vm.metrics.agency});
   // DOM HUD and Canvas2D both use the same seek(t), including during MP4 export.
   stage.dataset.phase=state.phase;
   const c=visual.camera;
@@ -103,6 +102,7 @@ function renderAt(t){
   document.querySelector('#fallback-mode').textContent=profile.result.fallbackMode.toUpperCase();
   if(brainRenderMode==='3d'&&brain3d)brain3d.render(state.time,visual);
   else drawNeuralField(ctx,{time:state.time,visual,width:canvas.width,height:canvas.height});
+  updateV4Cockpit(document,{time:state.time,phase:state.phase,observer:vm.metrics.observer,rewardBias:vm.metrics.rewardBias,agency:vm.metrics.agency,projectedRegions:brain3d?.getProjectedRegions()});
   drawPackets(vm.packetProgress,state.phase);
   return state;
 }
@@ -192,6 +192,13 @@ function getSignature(){
 }
 window.__CONSCIOUSNESS_OS__={ready:false,seek:(seconds)=>{stopPlayback();controller.seek(Number(seconds));narrator.seek(controller.getTime());ambience.seek(controller.getTime());return lastState;},getDuration:()=>MIND_DIVE_DURATION,getCheck,getSignature,getPlaybackState:()=>({time:controller.getTime(),playing:controller.isPlaying()}),getRendererMode:()=>brainRenderMode,getRendererInfo:()=>brain3d?.getDebugState()??{mode:brainRenderMode},dispose:()=>brain3d?.destroy()};
 initializeV4Cockpit(document);
+function installModelScans(scans){
+ if(!scans)return;
+ const install=(host,src,alt)=>{if(!host||!src)return;const img=new Image();img.src=src;img.alt=alt;img.className='model-scan-image';host.append(img);host.classList.add('model-scan');};
+ install(document.querySelector('#v4-head-scan'),scans.miniature,'HRA 与 CC0 模型侧面扫描示意');
+ document.querySelectorAll('.v4-scan-thumb').forEach((host,i)=>install(host,scans.views[i],['模型冠状切面示意','模型矢状切面示意','模型轴向切面示意'][i]));
+ document.querySelectorAll('.v4-slice').forEach((host,i)=>{host.style.backgroundImage=`url("${scans.slices[i]}")`;host.classList.add('model-slice');});
+}
 // Move the same live panels into a mobile disclosure; retain IDs, updates and
 // chapter controls, instead of permanently hiding the desktop information.
 const hudMedia=matchMedia('(max-width:860px)');
@@ -229,6 +236,7 @@ window.addEventListener('consciousness-webgl-failed',e=>activateFallback(e.detai
     const quality=isMobile?'mobile':'high';
     brain3d=await createBrainScene({canvas:webglCanvas,modelUrl:'./assets/models/hra-allen-brain-v1.4.glb',quality});
     brainRenderMode='3d';
+    installModelScans(brain3d.scanImages);
     stage.classList.add('brain-3d-active');stage.classList.remove('brain-3d-fallback');
     renderModeStatus.textContent=`3D LIVE · HRA ATLAS / ${brain3d.model.meshCount} MESHES · 示意`;
     document.querySelector('#system-status').textContent='● REAL 3D / WebGL2';

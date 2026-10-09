@@ -14,7 +14,7 @@ export function classifyStructure(name=''){
  if(/hippocamp|海马/.test(n))return 'hippocampus';
  if(/amygdal|杏仁/.test(n))return 'amygdala';
  if(/striatu|caudate|putamen|纹状/.test(n))return 'striatum';
- if(/prefrontal|fronto|额叶/.test(n))return 'prefrontal';
+ if(/prefrontal|fronto|frontal|额叶/.test(n))return 'prefrontal';
  if(/parietal|顶叶/.test(n))return 'parietal';
  if(/temporal|颞叶/.test(n))return 'temporal';
  if(/insula|岛叶/.test(n))return 'insula';
