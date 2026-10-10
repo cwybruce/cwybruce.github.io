@@ -33,7 +33,7 @@ fragment:`
  void main(){
    vec3 n=normalize(vNormal);
    float facing=abs(dot(n,normalize(vEye)));
-   float fresnel=pow(max(0.0,1.0-facing),3.5);
+   float fresnel=pow(max(0.0,1.0-facing),4.2);
    vec3 key=normalize(vec3(-.48,.72,.85));
    float diffuse=max(0.0,dot(n,key));
    float specular=pow(max(0.0,dot(n,normalize(key+normalize(vEye)))),96.0);
@@ -41,13 +41,13 @@ fragment:`
    float coreFalloff=exp(-length(vWorld-vec3(-.35,1.30,.15))*1.10);
    // Rounded gyri come from the licensed mesh normals, with dark recesses.
    // Spatial lights stay legible at rest; absolute time moves only their activity.
-   vec3 color=vec3(.002,.006,.020)+vec3(.006,.11,.34)*pow(diffuse,1.7);
-   color+=vec3(.13,1.80,6.5)*fresnel;
-   color+=vec3(.65,1.45,2.8)*specular*.65;
+   vec3 color=vec3(.002,.008,.032)+vec3(.008,.14,.60)*pow(diffuse,1.5);
+   color+=vec3(.075,1.50,8.2)*fresnel;
+   color+=vec3(.38,.95,2.4)*specular*.42;
    // Curved crests get thin cool light; actual concavities stay deep blue.
    float ridge=vSurfaceRelief.x,groove=vSurfaceRelief.y;
-   color*=1.0-.55*groove;
-   color+=vec3(.12,.50,1.4)*ridge*(.12+.50*fresnel);
+   color*=1.0-.72*groove;
+   color+=vec3(.06,.40,1.6)*ridge*(.10+.65*fresnel);
    float micro=.5+.5*sin(vWorld.y*93.0+sin(vWorld.z*17.0)*3.0+vWorld.x*31.0);
    color+=vec3(.015,.10,.22)*pow(micro,20.0)*ridge;
    color+=vec3(.85,.008,.28)*pinkLight*(.06+.30*coreFalloff)*(1.0-.35*uRouteMix);
@@ -56,7 +56,7 @@ fragment:`
    vec3 rose=vec3(.007,.002,.018)+vec3(.09,.003,.06)*pow(diffuse,2.0)
      +vec3(1.8,.05,1.05)*fresnel+vec3(1.8,.55,1.45)*specular*.60;
    color=mix(color,rose,pinkFocus*.78);
-   float alpha=clamp(.11+.68*sqrt(fresnel)+.04*diffuse,.0,.90);
+   float alpha=clamp(.09+.70*sqrt(fresnel)+.035*diffuse,.0,.90);
    if(uRegion==13.0){
      // MRI specimen folds provide fine real geometry, with a cool tissue fill.
      color+=vec3(.015,.10,.36)*pow(diffuse,.7)*(1.0-.70*groove);
@@ -81,6 +81,7 @@ fragment:`
    }else if(uRegion==10.0){
      float folia=pow(.5+.5*sin(vWorld.y*90.0+sin(vWorld.z*8.0)*2.0),24.0);
      color+=vec3(.08,.7,1.6)*folia*(.15+fresnel);
+     color*=.82;alpha*=.78;
    }
 
    if(uSurfaceLayer>0.0){color*=.28;alpha*=mix(1.0,.065,uSurfaceLayer);}

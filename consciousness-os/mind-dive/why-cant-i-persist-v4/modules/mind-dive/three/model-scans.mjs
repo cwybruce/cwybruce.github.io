@@ -12,7 +12,7 @@ export function createModelScans(THREE,{atlas,head,tissueSlices=null}){
  const brain=atlas.root.clone(true);brain.scale.setScalar(1);brain.position.set(0,0,0);scene.add(brain);
  const materials=[],clipMaterials=[];
  brain.traverse(o=>{if(!o.isMesh)return;const region=o.userData.anatomicalRegion,deep=['hippocampus','amygdala','thalamus','striatum','brainstem','connections'].includes(region);
-  const m=new THREE.MeshPhongMaterial({color:deep?0xbb86b7:0x7e93b0,emissive:deep?0x32142e:0x05101c,specular:0x94ccff,shininess:34,side:THREE.DoubleSide});o.material=m;materials.push(m);clipMaterials.push(m);
+  const m=new THREE.MeshPhongMaterial({color:deep?0x974caa:0x417db7,emissive:deep?0x220723:0x03121f,specular:0x62ddff,shininess:48,side:THREE.DoubleSide,transparent:true,opacity:deep?.48:.22,depthWrite:false});o.material=m;materials.push(m);clipMaterials.push(m);
  });
  const capture=(position,up,plane)=>{camera.position.set(...position);camera.up.set(...up);camera.lookAt(0,0,0);clipMaterials.forEach(m=>m.clippingPlanes=plane?[plane]:[]);renderer.render(scene,camera);return canvas.toDataURL('image/png');};
  try{

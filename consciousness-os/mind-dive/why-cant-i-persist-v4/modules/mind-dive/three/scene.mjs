@@ -14,9 +14,13 @@ import {createSubjectHead,loadCC0Head} from './subject-head.mjs';
 import {createModelScans} from './model-scans.mjs';
 import {createNeuralAtmosphere} from './neural-atmosphere.mjs';
 import {addSurfaceRelief,corticalLayerWeight} from './surface-relief.mjs';
-import {loadMRITissue,loadMRISlices} from './mri-tissue.mjs';
+import {loadMRITissue,loadMRISlices,getAnatomySourcePolicy} from './mri-tissue.mjs';
+import {createAnatomyReview,getReviewLayerPolicy} from './anatomy-review.mjs';
+import {applyAnatomyPlacement,createAnatomyDepth,ANATOMY_PLACEMENT,getAnatomyMaterialPolicy} from './anatomy-layout.mjs';
 
-export async function createBrainScene({canvas,modelUrl='./assets/models/hra-allen-brain-v1.4.glb',quality='high'}={}){
+export async function createBrainScene({canvas,modelUrl='./assets/models/hra-allen-brain-v1.4.glb',quality='high',reviewLayer='composite',reviewStyle='final'}={}){
+ const reviewPolicy=getReviewLayerPolicy(reviewLayer);
+ if(!['final','clay'].includes(reviewStyle))throw new RangeError('Unknown review style');
  if(!canvas)throw Error('WebGL canvas missing');
  const gl=canvas.getContext('webgl2',{antialias:quality==='high',alpha:true,depth:true,stencil:false,preserveDrawingBuffer:true,powerPreference:quality==='mobile'?'low-power':'high-performance'});
  if(!gl)throw Error('WebGL2 unavailable');
@@ -35,7 +39,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
  const source=await loadAnatomicalAtlas({THREE,GLTFLoader,url:modelUrl});
  // Both licensed assets use +Y up and +Z anterior. Fit the brain into the
  // cranial vault, above the facial features; keep the GLB triangles unchanged.
- source.root.scale.setScalar(.94);source.root.position.y=1.33;
+ applyAnatomyPlacement(source.root,'atlas');
  scene.add(source.root);
  const material=new THREE.ShaderMaterial({uniforms:{uTime:{value:0},uRouteMix:{value:0},uRegion:{value:0},uVisibility:{value:1},uSurfaceLayer:{value:0},uSurfaceStrength:{value:1}},vertexShader:brainSurfaceShaders.vertex,fragmentShader:brainSurfaceShaders.fragment,side:THREE.FrontSide,transparent:true,depthWrite:true,depthTest:true});
  const zoneIndex={prefrontal:1,hippocampus:2,amygdala:3,striatum:4,parietal:5,temporal:6,insula:7,thalamus:8,cortex:9,cerebellum:10,brainstem:11,connections:12};
@@ -45,48 +49,41 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
   addSurfaceRelief(THREE,object.geometry);
   const region=object.userData.anatomicalRegion;anatomicalLayers[region]=(anatomicalLayers[region]||0)+1;
   const m=material.clone();m.uniforms.uTime={value:0};m.uniforms.uRouteMix={value:0};m.uniforms.uRegion={value:zoneIndex[object.userData.anatomicalRegion]||0};
-  if(['cortex','prefrontal','parietal','temporal','insula'].includes(region)&&/_[LR]$/.test(object.name))corticalLayers.push({object,material:m,hemisphere:object.name.endsWith('_L')?-1:1});
+  const p=getAnatomyMaterialPolicy(object.name,region);object.userData.visualRole=p.role;
+  if(p.role==='cortex'&&/_[LR]$/.test(object.name))corticalLayers.push({object,material:m,hemisphere:object.name.endsWith('_L')?-1:1});
   // The licensed deep geometry is an X-ray layer rather than a flat signal dot.
   // Cortex retains the nearest-surface prepass; deeper structures are visible
   // through it with restrained additive fill and their own region palette.
-  if(/^Allen_(thalamus|head_of_caudate|body_of_caudate|putamen|amygdaloid_complex|head_of_hippocampus|body_of_hippocampus|tail_of_hippocampus|corpus_callosum|fornix|basilar_part_of_pons|pontine_tegmentum|pyramidal_part_of_medulla_oblongata|tegmentum_of_medulla_oblongata|midbrain_tegmentum)_L$/.test(object.name)){
-   m.depthTest=false;m.depthWrite=false;m.blending=THREE.AdditiveBlending;object.renderOrder=5;
-  }
+  m.uniforms.uSurfaceStrength.value=p.strength;m.depthTest=p.depthTest;m.depthWrite=p.depthWrite;m.blending=p.blending;object.renderOrder=p.renderOrder;
   object.material=m;uniforms.push(m.uniforms);
  });
  // A nearest-surface depth prepass prevents 283 translucent atlas regions from
  // accumulating pale rear surfaces before the front cortex is composited.
  // Share the original immutable geometry; no asset triangles are altered.
- const depthRoot=new THREE.Group();depthRoot.name='Nearest anatomical surface';
  const depthMaterial=new THREE.MeshBasicMaterial({colorWrite:false,depthWrite:true,depthTest:true,side:THREE.FrontSide});
- source.root.updateMatrixWorld(true);
- source.root.traverse(object=>{
-  if(!object.isMesh)return;
-  const depthMesh=new THREE.Mesh(object.geometry,depthMaterial);
-  depthMesh.matrixAutoUpdate=false;depthMesh.matrix.copy(object.matrixWorld);depthMesh.renderOrder=-5;
-  depthRoot.add(depthMesh);
- });
+ const depthRoot=createAnatomyDepth(THREE,source.root,depthMaterial);
+ let depthIndex=0;source.root.traverse(o=>{if(o.isMesh)depthRoot.children[depthIndex++].visible=['cortex','cerebellum','brainstem'].includes(o.userData.visualRole);});
  scene.add(depthRoot);
  let tissue=null;
- try{
+ // MRI geometry is diagnostic-only; normal visitors load just the HRA/head
+ // and independent voxel HUD images, without this 10 MB request or timeout.
+ if(reviewLayer==='mri')try{
   tissue=await loadMRITissue({THREE,loader:new GLTFLoader()});
-  tissue.root.scale.setScalar(.94);tissue.root.position.y=1.33;scene.add(tissue.root);
+  applyAnatomyPlacement(tissue.root,'tissue');scene.add(tissue.root);
   tissue.root.updateMatrixWorld(true);
-  depthRoot.children.forEach(o=>o.visible=false);
-  source.root.traverse(o=>{if(o.isMesh&&['cortex','prefrontal','parietal','temporal','insula','cerebellum'].includes(o.userData.anatomicalRegion)){
-   o.material.uniforms.uSurfaceStrength.value=.012;o.material.depthWrite=false;o.material.depthTest=false;o.renderOrder=2;
-  }});
-  corticalLayers.forEach(entry=>entry.supplemented=true);
+  if(reviewLayer==='mri')depthRoot.children.forEach(o=>o.visible=false);
   tissue.root.traverse(object=>{
    if(!object.isMesh)return;
    addSurfaceRelief(THREE,object.geometry);
    const m=material.clone();m.uniforms.uRegion.value=13;object.material=m;uniforms.push(m.uniforms);
    corticalLayers.push({object,material:m,hemisphere:object.name.endsWith('_L')?-1:1});
-   const d=new THREE.Mesh(object.geometry,depthMaterial);d.matrixAutoUpdate=false;d.matrix.copy(object.matrixWorld);d.renderOrder=-5;depthRoot.add(d);
+   object.userData.visualRole='threshold-context';
+   const d=new THREE.Mesh(object.geometry,depthMaterial);d.matrixAutoUpdate=false;d.matrix.copy(object.matrixWorld);d.renderOrder=-5;d.visible=reviewLayer==='mri';depthRoot.add(d);
   });
  }catch(error){console.warn('Supplementary MRI tissue unavailable; retaining complete HRA surface.',error);}
+ const sourcePolicy=getAnatomySourcePolicy({tissueAvailable:Boolean(tissue),reviewLayer});
  const signals=createNeuralSignals(THREE,{mobile:quality==='mobile',atlas:source});scene.add(signals.root);
- signals.root.scale.setScalar(.94);signals.root.position.y=1.33;
+ applyAnatomyPlacement(signals.root,'atlas');
  const atmosphere=createNeuralAtmosphere(THREE,{mobile:quality==='mobile'});scene.add(atmosphere.root);
  const volumeSpec=createVolumeShader(quality);
  const volumeUniforms={uTime:{value:0},uRouteMix:{value:0},uCameraLocal:{value:new THREE.Vector3(0,0,5)}};
@@ -101,6 +98,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
  }catch(error){
    console.warn('Licensed CC0 human head unavailable; keeping the procedural 3D face.',error);
  }
+ applyAnatomyPlacement(subjectHead.root,'head');
  let scanImages=null;
  let tissueSlices=null;try{tissueSlices=await loadMRISlices();}catch(error){console.warn('Specimen slices unavailable; retaining actual model sections.',error);}
  try{scanImages=createModelScans(THREE,{atlas:source,head:subjectHead,tissueSlices});}catch(error){console.warn('Model scan thumbnails unavailable; retaining schematic views.',error);}
@@ -110,7 +108,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
   ring.rotation.set(j*.4,j*.39,.6+j*.51);haloGroup.add(ring);
  }
  let composer=null;
- if(quality!=='mobile'){
+ if(quality!=='mobile'&&reviewStyle!=='clay'){
   composer=new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene,camera));
   // A single non-finite HDR sample must not poison all bloom blur levels.
@@ -118,6 +116,8 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
   composer.addPass(new UnrealBloomPass(new THREE.Vector2(1280,720),quality==='high'?.48:.30,.32,.90));
   composer.addPass(new OutputPass());
  }
+ const review=createAnatomyReview(THREE,{roots:{hra:source.root,tissue:tissue?.root,head:subjectHead.root,signals:signals.root,atmosphere:atmosphere.root},layer:reviewLayer,style:reviewStyle,depthRoot,decorations:[fog,haloGroup],headModel:subjectHead.cc0Model,primarySource:ANATOMY_PLACEMENT.primarySource});
+ if(reviewStyle==='clay'){ambient.color.set(0xffffff);ambient.intensity=.5;blue.color.set(0xffffff);pink.color.set(0xffffff);renderer.toneMappingExposure=1;}
  let disposed=false;
  let lastTime=0;
  let portrait=false;
@@ -138,7 +138,7 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
    // DoubleSide anatomy in an interior shot exposes enormous backface triangles.
    const near=Math.max(0,Math.min(1,(pose.radius-3.4)/2.3));
    const exterior=near*near*(3-2*near);
-   source.root.visible=exterior>0;subjectHead.root.visible=exterior>0;depthRoot.visible=exterior>0;if(tissue)tissue.root.visible=exterior>0;
+   source.root.visible=exterior>0&&sourcePolicy.atlasVisible;subjectHead.root.visible=exterior>0;depthRoot.visible=exterior>0;if(tissue)tissue.root.visible=exterior>0&&sourcePolicy.tissueVisible;
    const distance=portrait?1.26:1,centerZ=(portrait?.25:.35)*exterior;
    const centerX=-.45*(1-exterior),centerY=.45+.80*(1-exterior);
    camera.position.set(pose.position[0]*distance+centerX,pose.position[1]*distance+centerY,pose.position[2]*distance+centerZ);
@@ -156,12 +156,15 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
    fog.updateMatrixWorld(true);volumeUniforms.uCameraLocal.value.copy(camera.position);fog.worldToLocal(volumeUniforms.uCameraLocal.value);
    haloGroup.rotation.y=pose.time*.013;
    pink.intensity=20+12*(1-mix);blue.intensity=18+17*mix;
+   if(reviewStyle==='clay'){pink.intensity=5;blue.intensity=22;}
+   review.apply();
    if(composer)composer.render(0);else renderer.render(scene,camera);
    lastTime=pose.time;
    return true;
  }
  function destroy(){
   disposed=true;canvas.removeEventListener('webglcontextlost',onLost);
+  review.dispose();
   scene.traverse(o=>{o.geometry?.dispose(); if(Array.isArray(o.material))o.material.forEach(m=>m.dispose());else o.material?.dispose();});
   subjectHead.dispose();signals.dispose();atmosphere.dispose();composer?.dispose();renderer.dispose();
  }
@@ -169,5 +172,6 @@ export async function createBrainScene({canvas,modelUrl='./assets/models/hra-all
   signals.root.updateMatrixWorld(true);
   return Object.fromEntries(Object.entries(signals.anchors).map(([name,xyz])=>{const p=signals.root.localToWorld(new THREE.Vector3(...xyz)).project(camera);return [name,{x:(p.x+1)/2,y:(1-p.y)/2,visible:p.z>=-1&&p.z<=1&&Math.abs(p.x)<1&&Math.abs(p.y)<1}];}));
  }
- return {render,resize,destroy,model:source,quality,scanImages,getProjectedRegions,getDebugState:()=>({mode:'3d',lastTime,camera:camera.position.toArray(),exteriorVisible:source.root.visible,regions:getProjectedRegions(),neuralRoutes:signals.routeCount,corticalBranches:signals.surfaceEndpoints.length,modelScans:scanImages?.views.length||0,modelMeshes:source.meshCount,tissueSource:tissue?.source||'HRA',tissueVertices:tissue?.vertexCount||0,neckFibers:subjectHead.surfaceFiberCount||0,headVertices:subjectHead.headVertexCount||subjectHead.mesh.geometry.attributes.position.count,headSource:subjectHead.headSource||'procedural',headMeshCount:subjectHead.headMeshCount||0,anatomicalLayers:{...anatomicalLayers},volumeSteps:volumeSpec.steps,threeVersion:THREE.REVISION})};
+ const anatomyState=()=>Object.fromEntries(Object.entries({hra:source.root,tissue:tissue?.root,head:subjectHead.cc0Model}).map(([name,root])=>[name,root?{visible:root.visible,position:root.position.toArray(),scale:root.scale.toArray(),bounds:{min:new THREE.Box3().setFromObject(root).min.toArray(),max:new THREE.Box3().setFromObject(root).max.toArray()},matrix:root.matrixWorld.toArray()}:null]));
+ return {render,resize,destroy,model:source,quality,scanImages,getProjectedRegions,getDebugState:()=>({mode:'3d',lastTime,camera:camera.position.toArray(),exteriorVisible:source.root.visible,regions:getProjectedRegions(),neuralRoutes:signals.routeCount,corticalBranches:signals.surfaceEndpoints.length,modelScans:scanImages?.views.length||0,modelMeshes:source.meshCount,primaryAnatomy:sourcePolicy.primarySource,tissueActive:sourcePolicy.tissueVisible,tissueSource:tissue?.source||'HRA',tissueVertices:tissue?.vertexCount||0,neckFibers:subjectHead.surfaceFiberCount||0,headVertices:subjectHead.headVertexCount||subjectHead.mesh.geometry.attributes.position.count,headSource:subjectHead.headSource||'procedural',headMeshCount:subjectHead.headMeshCount||0,anatomicalLayers:{...anatomicalLayers},volumeSteps:volumeSpec.steps,threeVersion:THREE.REVISION,review:{layer:reviewLayer,style:reviewStyle,available:review.available,anatomy:review.enabled?anatomyState():undefined}})};
 }

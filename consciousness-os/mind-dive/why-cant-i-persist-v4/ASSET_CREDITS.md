@@ -2,6 +2,8 @@
 
 ## HRA Allen Human Brain (Male), v1.4
 
+Current anatomy/hierarchy rendering uses HRA as the single primary exterior and connected cerebellum/brainstem. `ANATOMY_PLACEMENT` uniformly scales the normalized atlas/signals by 1.025 at Y +1.24; CC0 subject root uses uniform 1.04 at [0,-.10,-.08]. Original binaries/triangles remain unchanged. Shared depth follows this final transform. Earlier .94/Y1.33 and MRI-primary descriptions below document the prior release, not current default rendering.
+
 - **Creator / source:** Human Reference Atlas (HRA) 3D Reference Object Library, derived from the Allen Human Reference Atlas – 3D (2020), licensed by HRA under **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
 - **Source URL:** https://cdn.humanatlas.io/digital-objects/ref-organ/brain-male/v1.4/assets/3d-allen-m-brain.glb
 - **Official catalog:** https://humanatlas.io/3d-reference-library
@@ -52,6 +54,8 @@ Verified source page on 2026-10-09: the Innerscene listing explicitly dedicates 
 - Audition receipts: `docs/audio/2026-10-09-auditions.md`; final generation and
   mastering receipts: `docs/audio/2026-10-09-v4/README.md`.
 ## Supplementary specimen tissue and MRI cuts (2026-10-10)
+
+Anatomy diagnostics found that the threshold derivative below is not a complete segmented cortical surface: it has anterior/superior holes and disproportionate lower posterior lobes. Current default HRA rendering does not display this derivative exterior. The unchanged GLB remains loadable for explicit diagnostic comparison; genuine voxel HUD sections remain in use. It is not renamed a segmented cortex, and its historical anisotropic baked fit is not claimed to be removed by a uniform root transform. No new specimen or asset license was introduced in this round.
 
 - Edlow, Brian L., et al. *7 Tesla MRI of the ex vivo human brain at 100 micron resolution* (2019), [Dryad dataset](https://doi.org/10.5061/dryad.119f80q), [Dryad-deposited Zenodo mirror](https://zenodo.org/records/5132897).
 - Original file: `Synthesized_FLASH25_downsampled_500um.nii.gz`, 66,605,139 bytes. MD5 `b1a8583ea3c2c1b14fead76ea03d02f2`; SHA256 `e2511e9a77aa6fac0d0be750f8227c9b445bdc64ab188ede75288e7b70f8a7a6`.

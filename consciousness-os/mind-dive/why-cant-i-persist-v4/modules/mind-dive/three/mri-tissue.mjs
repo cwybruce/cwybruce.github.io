@@ -7,6 +7,12 @@ export const MRI_TISSUE={
  byteLength:10280752,
  originalSha256:'e2511e9a77aa6fac0d0be750f8227c9b445bdc64ab188ede75288e7b70f8a7a6'
 };
+/** This threshold extraction is incomplete; full HRA remains the primary
+ * coherent specimen. MRI geometry is available only in explicit diagnosis. */
+export function getAnatomySourcePolicy({tissueAvailable=false,reviewLayer='composite'}={}){
+ const isolatedMRI=reviewLayer==='mri';
+ return {primarySource:isolatedMRI?'MRI':'HRA',atlasVisible:!isolatedMRI&&reviewLayer!=='head',tissueVisible:isolatedMRI&&tissueAvailable,atlasStrength:1,depthSource:isolatedMRI?'mri':'hra',available:!isolatedMRI||tissueAvailable};
+}
 export async function loadMRITissue({THREE,loader,url=MRI_TISSUE.uri,timeoutMs=15000}){
  let timer;
  try{

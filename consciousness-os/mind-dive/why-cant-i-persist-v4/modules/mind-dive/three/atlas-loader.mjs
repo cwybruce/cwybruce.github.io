@@ -13,6 +13,7 @@ export function classifyStructure(name=''){
  if(/pons|pontine|medulla|midbrain|tegmentum|colliculus|substantia_nigra|red_nucleus|cerebral_peduncle/.test(n))return 'brainstem';
  if(/corpus_callosum|fornix|commissure/.test(n))return 'connections';
  if(/cerebell|小脑/.test(n))return 'cerebellum';
+ if(/parahippocampal_gyrus/.test(n))return 'temporal';
  if(/hippocamp|海马/.test(n))return 'hippocampus';
  if(/amygdal|杏仁/.test(n))return 'amygdala';
  if(/striatu|caudate|putamen|纹状/.test(n))return 'striatum';

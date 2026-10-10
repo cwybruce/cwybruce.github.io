@@ -9,13 +9,13 @@ export function getSignal(t,seed=0){
  const p=Number.isFinite(+t)?+t:0;
  return .48+.25*Math.sin(p*.43+seed*1.9)+.14*Math.sin(p*1.7+seed*2.7);
 }
-function makeWave(t,seed,width=100,height=14,samples=46){
+function makeWave(t,seed,width=100,height=14,samples=92){
  let d='';
  for(let k=0;k<=samples;k++){
   const u=k/samples;
   const x=u*width;
   const frequency=seed>=10?[2.2,5.2,1.5,8.5,1][(seed-10)%5]:5.8;
-  const modulation=.28*Math.sin(6.2831853*frequency*u+seed*1.6+t*.39)+.12*Math.sin(6.2831853*(frequency*1.7)*u+seed*2.7+t*1.19);
+  const modulation=.20*Math.sin(6.2831853*frequency*u+seed*1.6+t*.39)+.13*Math.sin(6.2831853*(frequency*3.7)*u+seed*2.7+t*1.19)+.07*Math.sin(6.2831853*(frequency*6.3)*u+seed+t*.8);
   const envelope=.4+.6*(.5+.5*Math.sin(u*7.4+seed));
   const y=height*.5+modulation*height*envelope;
   d+=`${k?'L':'M'}${x.toFixed(2)} ${y.toFixed(2)} `;
@@ -31,6 +31,10 @@ export function initializeV4Cockpit(root=document){
  for(let i=0;i<72;i++){const angle=i*Math.PI/36,r=274,x=Math.cos(angle),y=Math.sin(angle),path=root.createElementNS(ns,'path');path.setAttribute('d',`M${x*r} ${y*r}L${x*(r+(i%6?3:9))} ${y*(r+(i%6?3:9))}`);rings.append(path);if(i%6===0){const dot=root.createElementNS(ns,'circle');dot.setAttribute('cx',String(x*292));dot.setAttribute('cy',String(y*292));dot.setAttribute('r','1.8');dot.setAttribute('class','orbit-dot');rings.append(dot);}}
  for(const [label,angle]of [['PFC',-1.92],['HPC',-.43],['STR',2.64],['INS',.35],['THA',1.18]]){const text=root.createElementNS(ns,'text');text.textContent=label;text.setAttribute('x',String(Math.cos(angle)*277));text.setAttribute('y',String(Math.sin(angle)*277));rings.append(text);}
  stage.append(orbit);
+ for(const frame of root.querySelectorAll('.v4-hud-frame')){
+  const outline=root.createElementNS(ns,'svg');outline.setAttribute('class','v4-frame-outline');outline.setAttribute('aria-hidden','true');outline.setAttribute('preserveAspectRatio','none');
+  const path=root.createElementNS(ns,'path');path.setAttribute('vector-effect','non-scaling-stroke');outline.append(path);frame.append(outline);
+ }
  const stack=root.querySelector('#v4-slice-stack');
  if(stack){
   stack.replaceChildren();
@@ -58,6 +62,14 @@ export function updateV4Cockpit(root=document,{time=0,phase='trigger',observer=1
  const stage=root.querySelector('#stage');if(!stage)return;
  initializeV4Cockpit(root);
  const t=clamp(Number(time)||0,0,36),stageIndex=Math.max(0,phaseOrder.indexOf(phase));
+ const frameKey=`${stage.clientWidth}:${stage.clientHeight}:${root.querySelector('.mobile-hud')?.open}`;
+ const frameState=cached.get(stage);
+ if(frameState.frameKey!==frameKey)for(const outline of root.querySelectorAll('.v4-frame-outline')){
+  const {width:w,height:h}=outline.parentElement.getBoundingClientRect();if(w<=0||h<=0)continue;
+  const c=Math.min(9,w*.025,h*.10);outline.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  outline.querySelector('path').setAttribute('d',`M${c} 1H${w-c}L${w-1} ${c}V${h-c}L${w-c} ${h-1}H${c}L1 ${h-c}V${c}Z`);
+ }
+ frameState.frameKey=frameKey;
  stage.style.setProperty('--v4-signal',String(getSignal(t,3)));
  root.querySelectorAll('#v4-slice-stack .v4-slice').forEach((node,i)=>node.classList.toggle('active',i===stageIndex));
  root.querySelectorAll('.v4-callout').forEach((node,i)=>{
