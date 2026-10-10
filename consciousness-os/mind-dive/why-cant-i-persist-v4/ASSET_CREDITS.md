@@ -28,7 +28,7 @@ This is a story visualization of habit loops, **not actual EEG, fMRI, an individ
 - **Downloaded GLB checksum (SHA-256):** `7135e03b6259e970458deff3e0458610914d7c35164cae12611101361e4a5749`
 - **File size:** 4,994,640 bytes.
 - **Transformation:** The single head/body mesh is loaded into Three.js and spatially cropped at the upper neck with a transparent material. The original binary is retained. The HRA anatomical brain is a separate reference model inside the head; alignment is a visual illustration, **not registered medical anatomy**.
-- **Derived render layers:** Detached eye/oral components receive a lower transparency weight; thin face/neck lines are sampled from the CC0 mesh topology. Small HUD views and cutaways are rendered from the loaded HRA/CC0 models in a temporary WebGL context. These are model-based illustrations, not measured MRI or reference-image crops.
+- **Derived render layers:** Detached eye/oral components receive a lower transparency weight; thin face/neck lines are sampled from the CC0 mesh topology. Chapter views use the loaded HRA models; head outlines use CC0 triangles. Current orthogonal HUD tissue is supplemented by the public CC0 MRI specimen described below. No reference-image crop is used.
 - **Fallback:** When the CC0 asset cannot be downloaded, a deterministic procedural head and neck mesh remains available to avoid a blank scene. Do not label procedural fallback as a scanned head.
 
 Verified source page on 2026-10-09: the Innerscene listing explicitly dedicates this model to CC0 and permits modification and redistribution, including commercial use. The whole-body bounding box includes forward feet; V4 corrects a 1.415 normalized-unit sagittal offset to align the cranium with the brain. This is an artist's illustrative alignment, not patient-specific medical registration.
@@ -51,3 +51,11 @@ Verified source page on 2026-10-09: the Innerscene listing explicitly dedicates 
   effects mix; no speech model or paid API is required in the browser.
 - Audition receipts: `docs/audio/2026-10-09-auditions.md`; final generation and
   mastering receipts: `docs/audio/2026-10-09-v4/README.md`.
+## Supplementary specimen tissue and MRI cuts (2026-10-10)
+
+- Edlow, Brian L., et al. *7 Tesla MRI of the ex vivo human brain at 100 micron resolution* (2019), [Dryad dataset](https://doi.org/10.5061/dryad.119f80q), [Dryad-deposited Zenodo mirror](https://zenodo.org/records/5132897).
+- Original file: `Synthesized_FLASH25_downsampled_500um.nii.gz`, 66,605,139 bytes. MD5 `b1a8583ea3c2c1b14fead76ea03d02f2`; SHA256 `e2511e9a77aa6fac0d0be750f8227c9b445bdc64ab188ede75288e7b70f8a7a6`.
+- License: [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/), confirmed in Dryad dataset API (`license=https://spdx.org/licenses/CC0-1.0.html`) and Zenodo record metadata (`license.id=cc-zero`). This is a publicly released ex-vivo specimen, not the visitor's scan.
+- Local derivative: `assets/models/mri-flash-tissue.glb`, 10,280,752 bytes, SHA256 `aa6248769d9fce2bfaac09fa7939b8a4c3052e23c289dd00c7320dcba1bb26bb`. The real 500 µm intensity volume supplies the detailed 3D surface (425,674 triangles); the website renders this geometry with WebGL, not a screenshot. `assets/scans/mri-flash-{coronal,sagittal,axial}.png` are genuine voxel sections, framed at 216×280 for the HUD.
+- Reproducible offline derivative: `scripts/derive_mri_tissue.py` with NumPy, SciPy, nibabel, scikit-image and Pillow. Canonical RAS axes are mapped to the renderer; intensity threshold 14, largest connected component, Gaussian sigma 1.15 voxel, marching step 2, explicit outward winding. Original large data and offline tools remain ignored in `output/`; visitors require neither Python nor those tools.
+- Alignment with HRA and the CC0 head is illustrative; these are different specimens. Bounds are fitted for composition, without a claim of clinical registration. HRA remains the region/deep-anatomy context and the complete real 3D fallback if the optional tissue asset fails. Narrative lighting, fibers and pink HUD markers are original illustration, not measured neural activity.

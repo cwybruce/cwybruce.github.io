@@ -13,7 +13,7 @@ export function createNeuralAtmosphere(THREE,{mobile=false}={}) {
   // Sparse foreground lights live outside the face's projected centre.
   if(i%97===0){p.x=-4.3-(i%5)*.18;p.z=Math.sign(p.z)*(2.8+Math.abs(p.z)*.3);}
   const halo=i%83===0&&i%97!==0;
-  points.push(p);positions.push(...p.toArray());sizes.push(halo?30:i%97===0?3.5:i%17===0?4.0:1.0+(i%5)*.28);halos.push(halo?1:0);
+  points.push(p);positions.push(...p.toArray());sizes.push(halo?25:i%97===0?3.5:i%17===0?4.0:1.0+(i%5)*.28);halos.push(halo?1:0);
   hues.push(i%7===0?1:0);seeds.push(i*.173);
   if(i>0&&i%11===0&&i%97!==0) {
    const neighbours=points.slice(Math.max(0,i-21),i).filter(q=>q.x>0)
@@ -45,7 +45,7 @@ export function createNeuralAtmosphere(THREE,{mobile=false}={}) {
    float sharp=exp(-d*340.0)*(1.0-vBlur)*(1.0-vHalo);float pulse=.76+.24*sin(uTime*.43+vSeed);
    vec3 color=mix(vec3(.10,.72,1.65),vec3(1.25,.065,.70),vHue);
    float cloud=.4+.6*noise(p*8.0+vSeed+uTime*.012);soft*=mix(1.0,cloud,vHalo);
-   float energy=mix(mix(1.0,.40,vBlur),.70,vHalo);
+   float energy=mix(mix(1.0,.40,vBlur),.46,vHalo);
    gl_FragColor=vec4(color*(soft*1.10+sharp*1.4),(soft*.85+sharp*.65)*pulse*energy*uVisibility);}`});
  const lights=new THREE.Points(geometry,material);lights.name='Depth lights';root.add(lights);
  const networkGeometry=new THREE.BufferGeometry();networkGeometry.setAttribute('position',new THREE.Float32BufferAttribute(links,3));

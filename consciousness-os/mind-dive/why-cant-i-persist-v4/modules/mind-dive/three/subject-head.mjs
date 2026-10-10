@@ -1,3 +1,4 @@
+import {createNeckFilaments} from './neck-filaments.mjs';
 /** Procedural translucent 3D human head shell, including facial profile and neck.
  * Geometry is authored mathematically; no screenshot, baked video or CSS pseudo-3D.
  * Real HRA cortex is rendered separately through this decorative enclosure.
@@ -168,6 +169,8 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
    });
    if(!meshes){matte.dispose();throw Error('No CC0 head mesh');}
    subject.root.add(gltf.scene);
+   const surfaceFibers=createNeckFilaments(THREE,gltf.scene,{mobile:subject.mobile});subject.root.add(surfaceFibers.root);
+   subject.surfaceFiberCount=surfaceFibers.endpoints.length;
    const wireGeometry=new THREE.BufferGeometry();wireGeometry.setAttribute('position',new THREE.Float32BufferAttribute(scanLines,3));
    const wireMaterial=new THREE.LineBasicMaterial({color:0x2878a7,transparent:true,opacity:.20,depthWrite:false,depthTest:false,blending:THREE.AdditiveBlending});
    const wire=new THREE.LineSegments(wireGeometry,wireMaterial);wire.name='CC0 face and neck scan topology';wire.renderOrder=11;subject.root.add(wire);
@@ -180,6 +183,7 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
    const oldUpdate=subject.update;
    subject.update=(t,mix,visibility=1)=>{
      oldUpdate(t,mix,visibility);
+     surfaceFibers.update(t,visibility);
      matte.opacity=(.10+.012*(.5+.5*Math.sin(t*.57)))*visibility;
      matte.emissiveIntensity=.28+.10*mix;
      wireMaterial.opacity=(subject.mobile?.009:.016)*visibility;

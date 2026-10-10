@@ -151,6 +151,30 @@ body{background:#02050c}
 #v4-orbital-scan text{font:6px ui-monospace,monospace;fill:#57b6d9}
 .v4-cockpit .narration-caption:before,.v4-cockpit .narration-caption:after{content:"";position:absolute;top:50%;width:.8%;height:1px;background:#23e8fb;box-shadow:0 0 6px #21e6ff}
 .v4-cockpit .narration-caption:before{left:0}.v4-cockpit .narration-caption:after{right:0}
+@media(min-width:861px){
+  .v4-cockpit .stage-header{font-weight:500;min-height:2.2cqw}
+  .v4-cockpit .stage-header:after{content:"";position:absolute;left:0;right:0;top:2cqw;height:1px;background:linear-gradient(90deg,#2884a4,transparent 27%,transparent 78%,#2884a4)}
+  .v4-cockpit .hud{padding:1.35%}
+  .v4-cockpit .metric,.v4-cockpit .profile-line{font-size:.82cqw}
+  .v4-cockpit .tiny{font-size:.74cqw}
+  .v4-cockpit .v4-mental-profile{height:10.8cqw;min-height:0}
+  .v4-cockpit .v4-mini-head{min-height:0}
+  .v4-cockpit .v4-frequencies{font-size:.73cqw}
+  .v4-cockpit .scene-map button{font-size:.86cqw}
+  .v4-cockpit .v4-scan-title{font-size:.96cqw}
+  .v4-cockpit .v4-callout{min-width:8.8%;border-radius:.48cqw}
+  .v4-cockpit .v4-callout b{font-size:1.10cqw}
+  .v4-cockpit .v4-callout small{font-size:.82cqw}
+  .v4-cockpit .v4-striatum{left:29%;top:54%}
+  .v4-cockpit .v4-insula{left:60%;top:52.9%}
+  .v4-cockpit .core-title{left:3%;top:2.5%}
+  .v4-cockpit .mind-core .phase-copy{bottom:7%}
+  .v4-cockpit .phase-copy h2{font-size:2.85cqw}
+  .v4-cockpit .phase-copy p{font-size:1.08cqw}
+  .v4-cockpit .narration-caption{bottom:15.3%}
+}
+.v4-slice.model-slice:before{display:block;content:"";position:absolute;inset:10% 0;border:1px solid #38628066;border-radius:50%;transform:none}
+.v4-slice.model-slice.active:before{border-color:#fa66ceaa}
 @media(max-width:860px){
   .mind-shell{padding:8px 7px 42px}
   .mind-nav{font-size:9px}

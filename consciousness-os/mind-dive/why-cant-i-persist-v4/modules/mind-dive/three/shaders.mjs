@@ -1,11 +1,14 @@
 /** These shaders are educational visual metaphors, never EEG/fMRI measurements. */
 export const brainSurfaceShaders={
 vertex:`
+ attribute vec2 aSurfaceRelief;
+ varying vec2 vSurfaceRelief;
  varying vec3 vNormal;
  varying vec3 vObject;
  varying vec3 vEye;
  varying vec3 vWorld;
  void main(){
+   vSurfaceRelief=aSurfaceRelief;
    vObject=position;
    vec4 mv=modelViewMatrix*vec4(position,1.0);
    vNormal=normalize(normalMatrix*normal);
@@ -20,6 +23,9 @@ fragment:`
  uniform float uRouteMix;
  uniform float uRegion;
  uniform float uVisibility;
+ uniform float uSurfaceLayer;
+ uniform float uSurfaceStrength;
+ varying vec2 vSurfaceRelief;
  varying vec3 vNormal;
  varying vec3 vObject;
  varying vec3 vEye;
@@ -30,21 +36,34 @@ fragment:`
    float fresnel=pow(max(0.0,1.0-facing),3.5);
    vec3 key=normalize(vec3(-.48,.72,.85));
    float diffuse=max(0.0,dot(n,key));
-   float specular=pow(max(0.0,dot(n,normalize(key+normalize(vEye)))),52.0);
+   float specular=pow(max(0.0,dot(n,normalize(key+normalize(vEye)))),96.0);
    float pinkLight=pow(max(0.0,dot(n,normalize(vec3(.75,-.25,.45)))),3.0);
    float coreFalloff=exp(-length(vWorld-vec3(-.35,1.30,.15))*1.10);
    // Rounded gyri come from the licensed mesh normals, with dark recesses.
    // Spatial lights stay legible at rest; absolute time moves only their activity.
    vec3 color=vec3(.002,.006,.020)+vec3(.006,.11,.34)*pow(diffuse,1.7);
    color+=vec3(.13,1.80,6.5)*fresnel;
-   color+=vec3(1.0,2.1,3.2)*specular*.95;
+   color+=vec3(.65,1.45,2.8)*specular*.65;
+   // Curved crests get thin cool light; actual concavities stay deep blue.
+   float ridge=vSurfaceRelief.x,groove=vSurfaceRelief.y;
+   color*=1.0-.55*groove;
+   color+=vec3(.12,.50,1.4)*ridge*(.12+.50*fresnel);
+   float micro=.5+.5*sin(vWorld.y*93.0+sin(vWorld.z*17.0)*3.0+vWorld.x*31.0);
+   color+=vec3(.015,.10,.22)*pow(micro,20.0)*ridge;
    color+=vec3(.85,.008,.28)*pinkLight*(.06+.30*coreFalloff)*(1.0-.35*uRouteMix);
    vec3 focusDelta=vWorld-vec3(-.95,2.15,-.75);
    float pinkFocus=exp(-dot(focusDelta,focusDelta)*1.5)*(1.0-.55*uRouteMix);
    vec3 rose=vec3(.007,.002,.018)+vec3(.09,.003,.06)*pow(diffuse,2.0)
      +vec3(1.8,.05,1.05)*fresnel+vec3(1.8,.55,1.45)*specular*.60;
    color=mix(color,rose,pinkFocus*.78);
-   float alpha=clamp(.16+.68*sqrt(fresnel)+.04*diffuse,.0,.90);
+   float alpha=clamp(.11+.68*sqrt(fresnel)+.04*diffuse,.0,.90);
+   if(uRegion==13.0){
+     // MRI specimen folds provide fine real geometry, with a cool tissue fill.
+     color+=vec3(.015,.10,.36)*pow(diffuse,.7)*(1.0-.70*groove);
+     color+=vec3(.04,.32,1.2)*ridge*(.08+.50*fresnel);
+     color+=vec3(.12,1.20,2.0)*fresnel*1.5;
+     alpha=clamp(.097+.70*pow(fresnel,.65)+.03*ridge,.0,.85);
+   }
    // Named HRA structures carry distinct narrative light, never clinical values.
    bool deep=uRegion==2.0||uRegion==3.0||uRegion==4.0||uRegion==8.0||uRegion==11.0||uRegion==12.0;
    if(deep){
@@ -64,7 +83,8 @@ fragment:`
      color+=vec3(.08,.7,1.6)*folia*(.15+fresnel);
    }
 
-   gl_FragColor=vec4(color,alpha*uVisibility);
+   if(uSurfaceLayer>0.0){color*=.28;alpha*=mix(1.0,.065,uSurfaceLayer);}
+   gl_FragColor=vec4(color,alpha*uVisibility*uSurfaceStrength);
    #include <tonemapping_fragment>
    #include <colorspace_fragment>
  }

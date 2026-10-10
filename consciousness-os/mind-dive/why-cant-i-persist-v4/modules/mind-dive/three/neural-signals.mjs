@@ -1,11 +1,12 @@
 import {neuralSignalShaders,tractShaders} from './shaders.mjs';
 
 // Artist-authored anchors in the normalized atlas frame: illustrative routes,
-// not tractography or an individual's measured brain activity.
+// not tractography, medical region centroids or measured brain activity.
+// Their 3D placement follows the approved reference's narrative composition.
 export const SIGNAL_ANCHORS=Object.freeze({
- pfc:[-.82,.98,.95],amygdala:[-.62,-.38,.62],striatum:[-.52,.02,.12],
- parietal:[-.65,1.12,-.55],hippocampus:[-.65,-.40,-.52],insula:[-1.02,.18,.34],
- thalamus:[-.38,-.04,-.20],cerebellum:[-.78,-1.06,-.91],brainstem:[0,-1.60,-.50],spine:[0,-4.0,-.20]
+ pfc:[-.82,.831,-1.085],amygdala:[-.62,.205,-1.570],striatum:[-.52,-.186,-.639],
+ parietal:[-.65,1.334,1.235],hippocampus:[-.65,.040,.869],insula:[-1.02,-.933,1.188],
+ thalamus:[-.38,-.171,.260],cerebellum:[-.78,-.902,-.936],brainstem:[0,-1.425,-.375],spine:[0,-4.0,-1.15]
 });
 const ROUTES=[['pfc','striatum',0],['pfc','amygdala',0],['parietal','thalamus',1],
  ['hippocampus','thalamus',0],['insula','striatum',1],['striatum','thalamus',0],
@@ -21,13 +22,13 @@ export function createNeuralSignals(THREE,{mobile=false,atlas=null}={}){
   const [start,end,group]=ROUTES[r],a=new THREE.Vector3(...SIGNAL_ANCHORS[start]),b=new THREE.Vector3(...SIGNAL_ANCHORS[end]);
   for(let i=0;i<strands;i++){
    const angle=i*2.39996323+r*.41,spread=.07+.11*Math.sqrt(i/strands);
-   const mid=a.clone().lerp(b,.5).add(new THREE.Vector3(-.20+Math.cos(angle)*spread,Math.sin(angle)*spread,.26*Math.sin(r*1.7)+Math.cos(angle)*spread));
+   const mid=a.clone().lerp(b,.5).add(new THREE.Vector3(-.20+Math.cos(angle)*spread,Math.sin(angle)*spread+(r===8?.72:r===2?.30:0),.26*Math.sin(r*1.7)+Math.cos(angle)*spread));
    const curve=new THREE.CatmullRomCurve3([a,a.clone().lerp(mid,.55),mid,mid.clone().lerp(b,.55),b]);
    if(i<2)bundleCurves.push({curve,group});
    let prev=null;
    for(let j=0;j<samples;j++){
     const t=j/(samples-1),pos=curve.getPoint(t);
-    positions.push(pos.x,pos.y,pos.z);phases.push((t+r*.137+i*.009)%1);groups.push(group);
+    positions.push(pos.x,pos.y,pos.z);phases.push((t+r*.137+i*.041)%1);groups.push(group);
     if(prev){linePositions.push(...prev,...pos.toArray());lineProgress.push(t,t);lineGroups.push(group,group);}
     prev=pos.toArray();
    }
@@ -94,8 +95,17 @@ export function createNeuralSignals(THREE,{mobile=false,atlas=null}={}){
    const names=['pfc','parietal','insula','thalamus'];
    const nearest=names.map(name=>new THREE.Vector3(...SIGNAL_ANCHORS[name])).sort((a,c)=>a.distanceToSquared(b)-c.distanceToSquared(b))[0];
    const a=nearest.clone().lerp(new THREE.Vector3(...SIGNAL_ANCHORS.thalamus),i%5===0?.55:0);
-   const mid=a.clone().lerp(b,.55).add(new THREE.Vector3(-.12-.12*Math.sin(i*2.4),.12*Math.sin(i*1.7),.10*Math.cos(i*2.1)));
-   const curve=new THREE.CatmullRomCurve3([a,mid,b]);let prev=null;
+   // Most fine connections stay local; major logical bundles still reach hubs.
+   // This prevents every cortical vertex from becoming the same bright fan.
+   if(i%3!==0){
+    const nearby=ends.filter((p,j)=>j!==i&&p.distanceToSquared(b)>.10&&p.distanceToSquared(b)<1.2)
+      .sort((p,q)=>p.distanceToSquared(b)-q.distanceToSquared(b));
+    if(nearby.length)a.copy(nearby[i%Math.min(nearby.length,8)]).multiplyScalar(.86);
+   }
+   a.add(new THREE.Vector3(.13*Math.sin(i*1.37),.17*Math.cos(i*1.71),.13*Math.sin(i*2.11)));
+   const trunk=a.clone().lerp(b,.25).add(new THREE.Vector3(-.06,.14*Math.sin(i*.71),.18*Math.cos(i*.63)));
+   const mid=a.clone().lerp(b,.63).add(new THREE.Vector3(-.18-.12*Math.sin(i*2.4),.23*Math.sin(i*1.7),.18*Math.cos(i*2.1)));
+   const curve=new THREE.CatmullRomCurve3([a,trunk,mid,b]);let prev=null;
    for(let j=0;j<20;j++){
     const t=j/19,p=curve.getPoint(t);
     if(prev){vertices.push(...prev.toArray(),...p.toArray());progresses.push(t+i*.137,t+i*.137);colors.push(group,group);}
