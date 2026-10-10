@@ -153,8 +153,10 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
       float neckFade=smoothstep(-2.36,-1.75,vScanWorld.y);
       float faceZone=smoothstep(.35,1.7,vScanWorld.z)*(1.0-smoothstep(1.4,2.25,vScanWorld.y));
       gl_FragColor.rgb=vec3(.018,.065,.16)+vec3(.24,.78,1.65)*faceRim
-        +vec3(.045,.17,.42)*faceLight*faceZone+vec3(.22,.54,.90)*faceSpecular*faceZone;
-      gl_FragColor.a=clamp((.012+.050*faceZone+faceRim*.90*mix(.24,1.0,faceZone)+faceLight*faceZone*.20+scanEdge*.003+filament*.018)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
+        +vec3(.065,.22,.55)*faceLight*faceZone+vec3(.22,.54,.90)*faceSpecular*faceZone;
+      // A continuous cranial rim encloses the cortex; cheek/jaw light carries
+      // curvature while the crown remains transparent between its highlights.
+      gl_FragColor.a=clamp((.008+.060*faceZone+faceRim*.90*mix(.38,1.0,faceZone)+faceLight*faceZone*.26+scanEdge*.003+filament*.018)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
       #include <dithering_fragment>
      `);
    };

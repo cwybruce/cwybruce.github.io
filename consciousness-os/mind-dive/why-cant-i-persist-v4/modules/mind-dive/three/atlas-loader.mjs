@@ -10,7 +10,7 @@ export const ATLAS_MODEL={
 
 export function classifyStructure(name=''){
  const n=String(name).toLowerCase();
- if(/pons|pontine|medulla|midbrain|tegmentum|colliculus|substantia_nigra|red_nucleus|cerebral_peduncle/.test(n))return 'brainstem';
+ if(/pons|pontine|medulla|midbrain|tegmentum|colliculus|substantia_nigra|red_nucleus|cerebral_peduncle|cerebellar_peduncle/.test(n))return 'brainstem';
  if(/corpus_callosum|fornix|commissure/.test(n))return 'connections';
  if(/cerebell|小脑/.test(n))return 'cerebellum';
  if(/parahippocampal_gyrus/.test(n))return 'temporal';
