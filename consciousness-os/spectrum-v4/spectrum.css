@@ -38,3 +38,12 @@ h2{font-size:12px;letter-spacing:.065em;font-weight:400;margin:0 0 14px;color:#b
  .film-controls button{background:#090b18;border:1px solid #746388;color:#ebdcf4;font-size:10px;padding:5px;white-space:nowrap}.film-controls input{flex:1;min-width:25px;accent-color:#ff239d}.film-controls output{white-space:nowrap}.render-status{bottom:38px}
  @media(max-width:1000px) and (min-width:651px){.portrait-stage{min-height:760px}.portrait-stage canvas{top:230px;height:530px}.facts{top:450px}.thought{top:36%}.emotion{top:61%}.meaning{top:60%}.action{top:77%}.film-caption{left:10%;bottom:45px}.hero{width:100%}}
  @media(max-width:650px){.film-caption{left:8px;right:8px;bottom:50px}.film-caption p{font-size:11px}.film-controls{left:5px;right:5px;gap:4px}.film-controls button{font-size:9px;padding:4px}.film-controls output{font-size:9px}}
+/* Current-camera leaders replace decorative fixed CSS anchors. */
+#neural-leaders{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:1}
+#neural-leaders line{stroke:#c9c4db99;stroke-width:1}#neural-leaders circle{fill:#39112dd9;stroke:#f8f5ff;stroke-width:1.5;filter:drop-shadow(0 0 5px #ff1493)}
+#neural-leaders .highlighted line{stroke:#ff61b3;stroke-width:1.5}#neural-leaders .highlighted circle{fill:#ff1493;stroke:#fff}
+.callout{pointer-events:auto;z-index:2;text-align:left;padding:6px 9px;background:#050711e8;cursor:pointer}.callout:before,.callout:after{display:none}.callout.highlighted{border-color:#ff55b4;box-shadow:0 0 15px #ff149355}.callout[hidden]{display:none}
+.portrait-stage:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(transparent calc(var(--scan,62%) - 1px),#58d6ff1a var(--scan,62%),transparent calc(var(--scan,62%) + 1px));border-top:1px solid #26395033}
+.facts{z-index:2;gap:16px}.facts small{font-size:8px}.facts b{font-size:15px}.film-controls{z-index:3}.film-caption{z-index:2}
+@media(max-width:650px){.facts small{font-size:6px}.callout{padding:5px;font-size:8px}}
+@media(min-width:1001px) and (max-height:780px){.facts{top:245px;bottom:auto;width:210px;padding:8px;grid-template-columns:1fr 1fr;gap:10px}.facts b{font-size:12px}.facts small{font-size:7px}.facts div{padding-left:8px}.hero-actions{position:relative;z-index:3}}@media(min-width:1001px) and (max-height:680px){.dashboard{height:625px;min-height:625px}}
