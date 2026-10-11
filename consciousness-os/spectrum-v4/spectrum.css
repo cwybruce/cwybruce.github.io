@@ -17,3 +17,18 @@ h2{font-size:12px;letter-spacing:.065em;font-weight:400;margin:0 0 14px;color:#b
 @media(max-width:1000px){.dashboard{grid-template-rows:auto}.facts{top:240px}#modes{min-height:340px}}
 @media(max-width:650px){.facts{top:220px}.terminal{height:465px}#modes{min-height:360px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+@media(min-width:1001px){.stream button{padding-top:3px;padding-bottom:3px}}
+@media(min-width:1001px) and (max-height:780px){
+ .dashboard{min-height:0}.portrait-stage{min-height:0}.terminal{height:210px}
+ .facts{top:auto;bottom:20px;gap:7px;padding:8px 12px}.facts b{font-size:13px}.facts small{font-size:7px;margin-top:2px}
+ .left-rail section{padding:7px 10px}.left-rail h2{font-size:8px;margin-bottom:7px}
+ .metric{margin-bottom:7px}.metric strong,.metric b{font-size:10px}.track{height:6px;margin-top:3px}
+ .minor-metrics{margin-top:7px}.minor-metrics p{font-size:8px;margin:2px 0;padding-bottom:1px}.minor-metrics b{font-size:9px}
+ .map-labels{font-size:7px}.map-wrap{gap:8px}
+ .signal{font-size:8px;margin:3px 0}.signal svg{height:14px}
+ .resource{font-size:8px;margin:4px 0}.resource .track{height:5px}
+ .stream{min-height:100px!important}.stream button{font-size:8px;padding:3px 0}.stream button small{font-size:7px}
+ .neural{height:185px}.spectrum>h2{margin-bottom:6px}
+ #modes button{min-height:35px;padding:3px 5px}#modes button .name{font-size:12px}#modes button .name small{font-size:10px}
+ .current{padding-top:7px;padding-bottom:7px}.current h2{font-size:9px}.current #current-mode{font-size:16px}#mode-summary{font-size:9px;margin-top:5px}
+}
