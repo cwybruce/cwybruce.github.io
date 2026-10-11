@@ -8,6 +8,7 @@ export const ANATOMY_PLACEMENT=Object.freeze({
  // Legacy threshold MRI remains available for isolated diagnosis only. Its
  // baked axis fit is documented; this transform does not undo that distortion.
  tissue:placement([0,1.33,0],.94),
+ // Keep the verified enclosure; jaw depth is refined by directional surface light.
  head:placement([-.13,-.10,-.05],[1.32,1.14,1.20])
 });
 export function applyAnatomyPlacement(root,name){

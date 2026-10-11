@@ -145,18 +145,21 @@ export async function loadCC0Head(THREE,GLTFLoader,subject,{url='./assets/models
      shader.fragmentShader='varying float vShellWeight;varying vec3 vScanWorld;\n'+shader.fragmentShader;
      shader.fragmentShader=shader.fragmentShader.replace(marker,`
       vec3 scanNormal=normalize(normal),scanEye=normalize(vViewPosition);
-      float faceRim=pow(max(0.0,1.0-abs(dot(scanNormal,scanEye))),2.0);
+      float faceRim=pow(max(0.0,1.0-abs(dot(scanNormal,scanEye))),2.3);
       float faceLight=pow(max(0.0,dot(scanNormal,normalize(vec3(-.35,.65,.85)))),2.0);
       float faceSpecular=pow(max(0.0,dot(scanNormal,normalize(scanEye+vec3(-.35,.65,.85)))),32.0);
       float scanEdge=pow(.5+.5*sin(vScanWorld.y*125.0),18.0);
       float filament=pow(.5+.5*sin(vScanWorld.y*39.0+sin(vScanWorld.z*19.0)*3.0+vScanWorld.x*28.0),28.0);
       float neckFade=smoothstep(-2.36,-1.75,vScanWorld.y);
       float faceZone=smoothstep(.35,1.7,vScanWorld.z)*(1.0-smoothstep(1.4,2.25,vScanWorld.y));
+      float jawZone=(1.0-smoothstep(-.5,.3,vScanWorld.y))*faceZone;
+      float jawLight=pow(max(0.0,dot(scanNormal,normalize(vec3(.4,-.5,.7)))),3.0);
       gl_FragColor.rgb=vec3(.018,.065,.16)+vec3(.24,.78,1.65)*faceRim
-        +vec3(.065,.22,.55)*faceLight*faceZone+vec3(.22,.54,.90)*faceSpecular*faceZone;
+        +vec3(.065,.22,.55)*faceLight*faceZone+vec3(.22,.54,.90)*faceSpecular*faceZone
+        +vec3(.06,.20,.48)*jawLight*jawZone;
       // A continuous cranial rim encloses the cortex; cheek/jaw light carries
       // curvature while the crown remains transparent between its highlights.
-      gl_FragColor.a=clamp((.008+.060*faceZone+faceRim*.90*mix(.38,1.0,faceZone)+faceLight*faceZone*.26+scanEdge*.003+filament*.018)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
+      gl_FragColor.a=clamp((.008+.060*faceZone+faceRim*.90*mix(.38,1.0,faceZone)+faceLight*faceZone*.30+jawLight*jawZone*.10+scanEdge*.003+filament*.018)*opacity*8.0,0.0,.76)*vShellWeight*neckFade;
       #include <dithering_fragment>
      `);
    };
