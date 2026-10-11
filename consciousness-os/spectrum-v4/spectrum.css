@@ -32,3 +32,9 @@ h2{font-size:12px;letter-spacing:.065em;font-weight:400;margin:0 0 14px;color:#b
  #modes button{min-height:35px;padding:3px 5px}#modes button .name{font-size:12px}#modes button .name small{font-size:10px}
  .current{padding-top:7px;padding-bottom:7px}.current h2{font-size:9px}.current #current-mode{font-size:16px}#mode-summary{font-size:9px;margin-top:5px}
 }
+ .film-caption{position:absolute;bottom:45px;left:25%;right:10px;text-align:center;padding:8px 12px;background:linear-gradient(0deg,#02040bf2,#02040b00);pointer-events:none}
+ .film-caption small{color:#ff79d0;font-size:9px;letter-spacing:.08em}.film-caption p{font-family:var(--sans);font-size:12px;line-height:1.5;margin:5px 0;color:#e4ecff;text-shadow:0 2px 5px #000}
+ .film-controls{position:absolute;bottom:4px;left:18px;right:10px;display:flex;gap:8px;align-items:center;background:#030610e8;padding:5px;border-top:1px solid #ff239d55;font-size:10px}
+ .film-controls button{background:#090b18;border:1px solid #746388;color:#ebdcf4;font-size:10px;padding:5px;white-space:nowrap}.film-controls input{flex:1;min-width:25px;accent-color:#ff239d}.film-controls output{white-space:nowrap}.render-status{bottom:38px}
+ @media(max-width:1000px) and (min-width:651px){.portrait-stage{min-height:760px}.portrait-stage canvas{top:230px;height:530px}.facts{top:450px}.thought{top:36%}.emotion{top:61%}.meaning{top:60%}.action{top:77%}.film-caption{left:10%;bottom:45px}.hero{width:100%}}
+ @media(max-width:650px){.film-caption{left:8px;right:8px;bottom:50px}.film-caption p{font-size:11px}.film-controls{left:5px;right:5px;gap:4px}.film-controls button{font-size:9px;padding:4px}.film-controls output{font-size:9px}}

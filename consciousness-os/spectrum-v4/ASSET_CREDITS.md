@@ -1,5 +1,11 @@
 # Asset Credits / 解剖及音频资产署名
 
+## Independent Spectrum film (2026-10-11)
+
+The Spectrum portrait is derived from the existing CC0 MakeHuman/MPFB head, including its real eye spheres; oral inserts remain excluded. A plane-clipped, closed neck end and gentle symmetric artistic fit are generated from actual triangles, without modifying the licensed GLB. Eyelids, ears, nose and lips are existing mesh structures, not features inferred from a hidden side of the reference. HRA remains the separate miniature brain. Pink streams are symbolic procedural curves, not measured neural pathways. Full reference images are excluded from runtime.
+
+New stock B (`zm_011`) Mandarin narration uses the previously cached Apache-2.0 Kokoro v1.1-zh; the score and transition chimes are original synthesis. No reference soundtrack, paid API, voice cloning, model weights or private recordings are deployed. Four cues and the two 36-second MP3s, pinned hashes and generation/mastering receipts: `docs/audio/2026-10-11-spectrum/README.md`. Existing Mind Dive audio remains unchanged.
+
 ## HRA Allen Human Brain (Male), v1.4
 
 Current cranial-envelope rendering uses HRA as the single primary exterior and connected cerebellum/brainstem. `ANATOMY_PLACEMENT` uniformly scales the normalized atlas/signals by 1.025 at Y +1.24. CC0 decorative skin now uses an explicit affine root fit [1.32,1.14,1.20] at [-.13,-.10,-.05]: width, height and anterior/posterior extent are fitted to contain the separate brain specimen and support fuller face/jaw shading. The skin's original proportions are therefore artistically adjusted; this is not an unchanged-proportion or medical registration claim. All original GLB bytes, vertex buffers and triangles remain unchanged, and HRA proportions remain uniform. Shared brain depth follows its original final transform. Earlier uniform head 1.04, .94/Y1.33 and MRI-primary descriptions below document prior releases. The actual skin-ray regression checks 708 named parcel extrema with a .025 scene-unit lateral ray margin; it is sampled coverage, not a proof for every vertex or triangle.
